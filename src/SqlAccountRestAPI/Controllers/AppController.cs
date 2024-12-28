@@ -21,10 +21,10 @@ public partial class AppController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult GetLogin([FromBody] LoginRequest request)
+    public async Task<IActionResult> GetLogin([FromBody] LoginRequest request)
     {
         _microORM.Login(request.Username, request.Password);
-        return Ok(_app.GetInfo());
+        return Ok(await _app.GetInfo());
     }
 
     // GET: api/<AppController>
