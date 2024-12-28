@@ -43,11 +43,11 @@ public class SqlAccountingAppHelper
 
                 // Parse JSON to Dictionary
                 var options = new JsonSerializerOptions
-                    {
-                        AllowTrailingCommas = true,
-                        ReadCommentHandling = JsonCommentHandling.Skip
-                    };
-                var applicationInfo = JsonSerializer.Deserialize<Dictionary<string, object>>(fileContent,options);
+                {
+                    AllowTrailingCommas = true,
+                    ReadCommentHandling = JsonCommentHandling.Skip
+                };
+                var applicationInfo = JsonSerializer.Deserialize<Dictionary<string, object>>(fileContent, options);
                 var releaseInfo = await GithubHelper.GetLatestReleaseInfo();
                 applicationInfo!["LATEST_VERSION"] = releaseInfo["tag_name"];
                 result.ApplicationInfo = applicationInfo;
@@ -168,7 +168,7 @@ public class SqlAccountingAppHelper
     {
         var appInfo = await GetInfo();
         var releaseInfo = await GithubHelper.GetLatestReleaseInfo();
-        SystemHelper.WriteJsonFile(await SystemHelper.GetCliConfigurationFilePath(),new Dictionary<string, object>
+        SystemHelper.WriteJsonFile(await SystemHelper.GetCliConfigurationFilePath(), new Dictionary<string, object>
         {
             {"API_VERSION", releaseInfo["tag_name"]}
         });
@@ -176,26 +176,58 @@ public class SqlAccountingAppHelper
 
         string appDir = appInfo.ApplicationInfo["APP_DIR"].ToString()!.Replace("\\", "/");
         string appName = appInfo.ApplicationInfo["APP_NAME"].ToString()!;
-
+        string appPort = appInfo.ApplicationInfo["PORT"].ToString()!;
         // PowerShell script as a string
-        // Stop sv -> Download -> Extract -> Clean up -> Update version in config file -> Start sv
+        // Stop sv -> Create backup folder -> Download -> Extract -> Clean up -> Update version in config file -> Start sv -> Check & Backup
         string powerShellScript = $@"
         $AppName = '{appName}'
         $DownloadUrl = '{downloadUrl}'
-        $AppDir = '{Path.Combine(appDir, appName)}'
+        $AppDir = '{appDir}'
+        $PackageDir = '{Path.Combine(appDir, appName)}'
+        $SwaggerUrl = 'http://localhost:{appPort}/swagger'
 
         sc.exe stop $AppName
+
+        $BackupDir = Join-Path -Path $AppDir -ChildPath 'backup'
+         if (Test-Path $BackupDir) {{
+            Remove-Item -Path $BackupDir -Recurse -Force
+        }}
+        New-Item -Path $BackupDir -ItemType Directory
+        
+        Copy-Item -Path $PackageDir -Destination $BackupDir -Recurse
 
         $DownloadPath = Join-Path -Path $AppDir -ChildPath 'downloaded.zip'
         Invoke-WebRequest -Uri $DownloadUrl -OutFile $DownloadPath
 
-        Expand-Archive -Path $DownloadPath -DestinationPath $AppDir -Force
+        Expand-Archive -Path $DownloadPath -DestinationPath $PackageDir -Force
 
         Remove-Item -Path $DownloadPath -Force
 
-
-
         sc.exe start $AppName
+
+        Start-Sleep -Seconds 10
+        try {{
+            $response = Invoke-WebRequest -Uri $SwaggerUrl -UseBasicParsing -TimeoutSec 5
+            if ($response.StatusCode -eq 200) {{
+                Write-Host 'Check passed. Update successful.'
+                Remove-Item -Path $BackupDir -Recurse -Force
+            }} else {{
+                throw 'Unexpected response status.'
+            }}
+        }} catch {{
+            Write-Host 'Check failed. Reverting to backup...'
+            sc.exe stop $AppName
+
+            Remove-Item -Path $PackageDir -Recurse -Force
+            New-Item -Path $PackageDir -ItemType Directory -Force
+            Copy-Item -Path $BackupDir -Destination $PackageDir -Recurse
+
+            Remove-Item -Path $BackupDir -Recurse -Force
+
+            sc.exe start $AppName
+
+            Write-Host 'Revert complete. Application is running on the previous version.'
+        }}
     ";
 
         // Start PowerShell process
