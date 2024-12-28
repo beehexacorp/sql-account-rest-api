@@ -45,27 +45,22 @@ namespace SqlAccountRestAPI.Helpers
                 // Call to GitHub API to fetch latest release information
                 var releaseInfo = await GetLatestReleaseInfo();
 
-                // Check if the "assets" field is present and is a List of Dictionaries
-                if (releaseInfo.ContainsKey("assets") && ((JsonElement)releaseInfo["assets"]).ValueKind == JsonValueKind.Array)
-                {
-                    // Iterate through each asset object in the array
-                    foreach (var assetObj in ((JsonElement)releaseInfo["assets"]).EnumerateArray())
-                    {
-                        // Check if "name" and "browser_download_url" are present in the asset object
-                        if (assetObj.TryGetProperty("name", out var nameProp) &&
-                            assetObj.TryGetProperty("browser_download_url", out var urlProp))
-                        {
-                            var assetName = nameProp.GetString();
-                            var downloadUrl = urlProp.GetString();
+                if (!releaseInfo.ContainsKey("assets")) return "";
+                var assets = (JsonElement)releaseInfo["assets"];
+                if (assets.ValueKind != JsonValueKind.Array) return "";
 
-                            // If we find an asset that ends with "win-x64.zip", return its download URL
-                            if (assetName != null && assetName.EndsWith("win-x64.zip"))
-                            {
-                                return downloadUrl!;
-                            }
-                        }
+
+                // Iterate through each asset object in the array
+                foreach (var asset in assets.EnumerateArray())
+                {
+                    if (asset.TryGetProperty("name", out var nameProp) &&
+                        asset.TryGetProperty("browser_download_url", out var urlProp) &&
+                        nameProp.GetString()?.EndsWith("win-x64.zip") == true)
+                    {
+                        return urlProp.GetString() ?? "";
                     }
                 }
+
                 return "";
             }
             catch (Exception ex)
