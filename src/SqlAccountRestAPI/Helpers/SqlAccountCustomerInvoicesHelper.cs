@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using SqlAccountRestAPI.Core;
+using System.Web;
 
 namespace SqlAccountRestAPI.Helpers;
 
@@ -20,7 +21,7 @@ public class SqlAccountingCustomerInvoiceHelper
 
     public IEnumerable<IDictionary<string, object>> GetByDocno(string documentNumber, int limit, int offset){
         var mainFields = _microORM.GetFields("AR_IV", limit, offset).Distinct().ToHashSet(); 
-
+        documentNumber = HttpUtility.UrlDecode(documentNumber);
         var sql = $@"SELECT * 
 FROM (
     SELECT *
