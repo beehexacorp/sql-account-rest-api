@@ -74,8 +74,4 @@ public partial class AppController : ControllerBase
     {
         return Ok(await _app.Update());
     }
-    [HttpPost("release-test")]
-    public IActionResult TestUpdate(){
-        return Ok();
-    }
 }
