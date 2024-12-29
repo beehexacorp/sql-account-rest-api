@@ -1,18 +1,27 @@
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System;
 namespace SqlAccountRestAPI.Core;
 
 public class SqlAccountingFactory : IDisposable
 {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern uint WTSGetActiveConsoleSessionId();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SetThreadDesktop(uint hDesktop);
     private dynamic? _app = null;
     public dynamic GetInstance()
     {
         if (_app != null)
         {
-            try{
+            try
+            {
                 _app.IsLogin();
                 return _app;
             }
-            catch (COMException){
+            catch (COMException)
+            {
                 _app = null;
             }
         }
@@ -24,21 +33,19 @@ public class SqlAccountingFactory : IDisposable
             {
                 throw new Exception("Cannot load SQLAcc.BizApp Assembly");
             }
+            
+            uint sessionId = WTSGetActiveConsoleSessionId();
 
-            // STA Thread
-            var staThread = new Thread(() =>
-            {
-                _app = Activator.CreateInstance(lBizType);
-            });
+            // Set the desktop of the current thread to the user's session
+            SetThreadDesktop(sessionId);
 
-            staThread.SetApartmentState(ApartmentState.STA);
-            staThread.Start();
-            staThread.Join();
+            _app = Activator.CreateInstance(lBizType);
 
             if (_app == null)
             {
                 throw new Exception("Cannot create instance of SQLAcc.BizApp");
             }
+
             return _app!;
         }
         else
