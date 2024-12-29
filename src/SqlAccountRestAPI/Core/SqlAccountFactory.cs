@@ -25,7 +25,15 @@ public class SqlAccountingFactory : IDisposable
                 throw new Exception("Cannot load SQLAcc.BizApp Assembly");
             }
 
-            _app = Activator.CreateInstance(lBizType);
+            // STA Thread
+            var staThread = new Thread(() =>
+            {
+                _app = Activator.CreateInstance(lBizType);
+            });
+
+            staThread.SetApartmentState(ApartmentState.STA);
+            staThread.Start();
+            staThread.Join();
 
             if (_app == null)
             {
