@@ -32,6 +32,7 @@
     <Content Remove="wwwroot/dashboard/**" />
     <Content Include="wwwroot/dashboard/dist/**" />
   </ItemGroup>
+
   
   <!-- Ensure exclusions are applied -->
   <Target Name="ExcludeFromPublish" BeforeTargets="PrepareForPublish">
