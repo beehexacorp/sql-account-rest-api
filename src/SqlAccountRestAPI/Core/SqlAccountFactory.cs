@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System;
 using SqlAccountRestAPI.Helpers;
+using System.Reflection;
 namespace SqlAccountRestAPI.Core;
 
 public class SqlAccountingFactory : IDisposable
@@ -56,32 +57,22 @@ public class SqlAccountingFactory : IDisposable
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // Check for existing instance in ROT
-            _app = ComHelper.GetActiveObject("SQLAcc.BizApp");
+
+            var lBizType = Type.GetTypeFromProgID("SQLAcc.BizApp");
+
+            if (lBizType == null)
+                throw new Exception("Cannot load SQLAcc.BizApp Assembly.");
+
+            _app = Activator.CreateInstance(lBizType);
 
             if (_app == null)
-            {
-                // No active instance found, create a new one
-                var lBizType = Type.GetTypeFromProgID("SQLAcc.BizApp");
-
-                if (lBizType == null)
-                {
-                    throw new Exception("Cannot load SQLAcc.BizApp Assembly");
-                }
-
-                _app = Activator.CreateInstance(lBizType);
-
-                if (_app == null)
-                {
-                    throw new Exception("Cannot create instance of SQLAcc.BizApp");
-                }
-            }
+                throw new Exception("Cannot create instance of SQLAcc.BizApp.");
 
             return _app!;
         }
         else
         {
-            throw new NotSupportedException("SQLAcc.BizApp is not supported on this platform");
+            throw new NotSupportedException("SQLAcc.BizApp is not supported on this platform.");
         }
     }
 
