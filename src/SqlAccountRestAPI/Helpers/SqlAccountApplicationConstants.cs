@@ -6,4 +6,5 @@ public class ApplicationConstants
     public const string CONFIGURATION_FOLDER_NAME = "data";
     public const string CONFIGURATION_FILE_NAME = "configuration.json";
     public const string GITHUB_SQL_ACCOUNT_REST_API_RELEASE_URL = "beehexacorp/sql-account-rest-api/releases/";
+    public const int APPLICATION_PORT = 5280;
 }

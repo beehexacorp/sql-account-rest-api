@@ -176,34 +176,40 @@ public class SqlAccountingAppHelper
 
         string appDir = appInfo.ApplicationInfo["APP_DIR"].ToString()!.Replace("\\", "/");
         string appName = appInfo.ApplicationInfo["APP_NAME"].ToString()!;
-        string appPort = appInfo.ApplicationInfo["PORT"].ToString()!;
+        string appPort = ApplicationConstants.APPLICATION_PORT.ToString();
+        string ProcessName = ApplicationConstants.APPLICATION_NAME.ToString();
         // PowerShell script as a string
-        // Stop sv -> Create backup folder -> Download -> Extract -> Clean up -> Update version in config file -> Start sv -> Check & Backup
+        // stop process -> create backup -> download zip -> extract zip -> check & backup -> start process
         string powerShellScript = $@"
+        $ProcessName = '{ProcessName}'
+        $ProcessPath = '{Path.Combine(appDir, appName, ProcessName + ".exe")}'
         $AppName = '{appName}'
         $DownloadUrl = '{downloadUrl}'
         $AppDir = '{appDir}'
         $PackageDir = '{Path.Combine(appDir, appName)}'
         $SwaggerUrl = 'http://localhost:{appPort}/swagger'
 
-        sc.exe stop $AppName
+        $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
+        if ($process) {{ 
+            Stop-Process -Name $processName -Force
+            Write-Host 'Process $processName has stopped.'
+        }}
 
         $BackupDir = Join-Path -Path $AppDir -ChildPath 'backup'
-         if (Test-Path $BackupDir) {{
+        if (Test-Path $BackupDir) {{
             Remove-Item -Path $BackupDir -Recurse -Force
         }}
         New-Item -Path $BackupDir -ItemType Directory
-        
-        Copy-Item -Path $PackageDir -Destination $BackupDir -Recurse
+        Move-Item -Path $PackageDir -Destination $BackupDir
 
         $DownloadPath = Join-Path -Path $AppDir -ChildPath 'downloaded.zip'
         Invoke-WebRequest -Uri $DownloadUrl -OutFile $DownloadPath
 
         Expand-Archive -Path $DownloadPath -DestinationPath $PackageDir -Force
-
         Remove-Item -Path $DownloadPath -Force
 
-        sc.exe start $AppName
+        Start-Process $ProcessPath
+        Write-Host 'Process $processName has started.'
 
         Start-Sleep -Seconds 10
         try {{
@@ -216,15 +222,19 @@ public class SqlAccountingAppHelper
             }}
         }} catch {{
             Write-Host 'Check failed. Reverting to backup...'
-            sc.exe stop $AppName
+            
+            $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
+            if ($process) {{ 
+                Stop-Process -Name $processName -Force
+            }}
 
+            $BackupPackagePath = Join-Path -Path $BackupDir -ChildPath $AppName
             Remove-Item -Path $PackageDir -Recurse -Force
-            New-Item -Path $PackageDir -ItemType Directory -Force
-            Copy-Item -Path $BackupDir -Destination $PackageDir -Recurse
+            Move-Item -Path $BackupPackagePath -Destination $AppDir
 
             Remove-Item -Path $BackupDir -Recurse -Force
-
-            sc.exe start $AppName
+            
+            Start-Process $ProcessPath
 
             Write-Host 'Revert complete. Application is running on the previous version.'
         }}
