@@ -9,10 +9,10 @@ using System.ComponentModel.DataAnnotations;
 using SqlAccountRestAPI.Core;
 
 namespace SqlAccountRestAPI.Helpers;
-public class SqlAccountingBizObjectHelper
+public class SqlAccountBizObjectHelper
 {
-    private SqlAccountingORM _microORM;
-    public SqlAccountingBizObjectHelper(SqlAccountingORM microORM)
+    private SqlAccountORM _microORM;
+    public SqlAccountBizObjectHelper(SqlAccountORM microORM)
     {
         _microORM = microORM;
     }
@@ -127,7 +127,7 @@ public class SqlAccountingBizObjectHelper
         }
     }
 
-    private void AddChildrenDataset(SqlAccountingBizObject bizObject, string datasetName, IEnumerable<IDictionary<string, object?>>? cdsData)
+    private void AddChildrenDataset(SqlAccountBizObject bizObject, string datasetName, IEnumerable<IDictionary<string, object?>>? cdsData)
     {
         var lCdsDataSet = bizObject.FindDataset(datasetName);
         var defaultSubDataSetExistFlag = false;
@@ -319,7 +319,7 @@ public class SqlAccountingBizObjectHelper
 
 
     }
-    public void UpdateChildrenDataset(SqlAccountingBizObject bizObject, string datasetName, IEnumerable<IDictionary<string, object?>>? cdsData)
+    public void UpdateChildrenDataset(SqlAccountBizObject bizObject, string datasetName, IEnumerable<IDictionary<string, object?>>? cdsData)
     {
         var lCdsDataSet = bizObject.FindDataset(datasetName);
         cdsData = cdsData ?? new List<IDictionary<string, object?>>();

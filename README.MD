@@ -89,7 +89,7 @@ Before using this project, ensure the following prerequisites are installed:
 
 ### Deployment
 
-To deploy the application as a Windows Service or on IIS, follow the CLI instructions available at [SQL Accounting CLI](https://github.com/beehexacorp/sql-accounting-cli).
+To deploy the application as a Windows Service or on IIS, follow the CLI instructions available at [SQL Account CLI](https://github.com/beehexacorp/sql-Account-cli).
 
 ### Local Development
 
@@ -123,7 +123,7 @@ To run the project locally for debugging and implementation:
 
 We welcome contributions to improve and extend this project.
 
-- **Fire a Ticket**: If you encounter any issues, feel free to fire a ticket on our [GitHub repository](https://github.com/beehexacorp/sql-accounting-cli).
+- **Fire a Ticket**: If you encounter any issues, feel free to fire a ticket on our [GitHub repository](https://github.com/beehexacorp/sql-Account-cli).
 - **Contact Support**: Reach out to our team at [support@hexasync.com](mailto:support@hexasync.com).
 - **Fork and Contribute**: You are welcome to fork the project, develop your features, and create pull requests (PRs) for review.
 

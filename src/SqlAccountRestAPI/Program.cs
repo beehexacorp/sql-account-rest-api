@@ -57,22 +57,22 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<SqlAccountingFactory>();
-builder.Services.AddSingleton<SqlAccountingORM>(provider =>
+builder.Services.AddSingleton<SqlAccountFactory>();
+builder.Services.AddSingleton<SqlAccountORM>(provider =>
 {
-    var sqlAccountingFactory = provider.GetRequiredService<SqlAccountingFactory>();
-    return new SqlAccountingLoginHelper(sqlAccountingFactory);
+    var sqlAccountFactory = provider.GetRequiredService<SqlAccountFactory>();
+    return new SqlAccountLoginHelper(sqlAccountFactory);
 });
-builder.Services.AddTransient<SqlAccountingAppHelper>();
-builder.Services.AddTransient<SqlAccountingBizObjectHelper>();
-builder.Services.AddTransient<SqlAccountingCustomerHelper>();
-builder.Services.AddTransient<SqlAccountingStockItemHelper>();
-builder.Services.AddTransient<SqlAccountingSalesOrderHelper>();
-builder.Services.AddTransient<SqlAccountingSalesInvoiceHelper>();
-builder.Services.AddTransient<SqlAccountingCustomerInvoiceHelper>();
-builder.Services.AddTransient<SqlAccountingCustomerPaymentHelper>();
-builder.Services.AddTransient<SqlAccountingStockAdjustmentHelper>();
-builder.Services.AddTransient<SqlAccountingStockItemTemplateHelper>();
+builder.Services.AddTransient<SqlAccountAppHelper>();
+builder.Services.AddTransient<SqlAccountBizObjectHelper>();
+builder.Services.AddTransient<SqlAccountCustomerHelper>();
+builder.Services.AddTransient<SqlAccountStockItemHelper>();
+builder.Services.AddTransient<SqlAccountSalesOrderHelper>();
+builder.Services.AddTransient<SqlAccountSalesInvoiceHelper>();
+builder.Services.AddTransient<SqlAccountCustomerInvoiceHelper>();
+builder.Services.AddTransient<SqlAccountCustomerPaymentHelper>();
+builder.Services.AddTransient<SqlAccountStockAdjustmentHelper>();
+builder.Services.AddTransient<SqlAccountStockItemTemplateHelper>();
 
 if (OperatingSystem.IsWindows())
 {
@@ -171,8 +171,10 @@ app.UseExceptionHandler(a => a.Run(async context =>
 var applicationLifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 applicationLifetime.ApplicationStopped.Register(() =>
 {
-    var sqlAccountingAppFactory = app.Services.GetRequiredService<SqlAccountingFactory>();
-    sqlAccountingAppFactory.Dispose();
+    var sqlAccountAppFactory = app.Services.GetRequiredService<SqlAccountFactory>();
+    sqlAccountAppFactory.Dispose();
+    var sqlAccountAppBizObject = app.Services.GetRequiredService<SqlAccountBizObject>();
+    sqlAccountAppBizObject.Dispose();
 });
 
 applicationLifetime.ApplicationStarted.Register(() =>

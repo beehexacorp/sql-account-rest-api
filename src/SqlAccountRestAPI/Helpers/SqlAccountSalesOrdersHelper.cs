@@ -11,10 +11,10 @@ using System.Web;
 
 namespace SqlAccountRestAPI.Helpers;
 
-public class SqlAccountingSalesOrderHelper
+public class SqlAccountSalesOrderHelper
 {
-    private SqlAccountingORM _microORM;
-    public SqlAccountingSalesOrderHelper(SqlAccountingORM microORM)
+    private SqlAccountORM _microORM;
+    public SqlAccountSalesOrderHelper(SqlAccountORM microORM)
     {
         _microORM = microORM;
     }

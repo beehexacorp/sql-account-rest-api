@@ -5,7 +5,7 @@ using SqlAccountRestAPI.Helpers;
 using System.Reflection;
 namespace SqlAccountRestAPI.Core;
 
-public class SqlAccountingFactory : IDisposable
+public class SqlAccountFactory : IDisposable
 {
     //     [DllImport("kernel32.dll", SetLastError = true)]
     //     public static extern uint WTSGetActiveConsoleSessionId();
@@ -64,6 +64,11 @@ public class SqlAccountingFactory : IDisposable
                 throw new Exception("Cannot load SQLAcc.BizApp Assembly.");
 
             _app = Activator.CreateInstance(lBizType);
+
+            var loginInfo = SqlAccountLoginHelper.ReLogin();
+            var username = loginInfo[0];
+            var password = loginInfo[1];
+            _app!.Login(username, password);
 
             if (_app == null)
                 throw new Exception("Cannot create instance of SQLAcc.BizApp.");

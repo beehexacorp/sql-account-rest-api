@@ -1,6 +1,6 @@
 namespace SqlAccountRestAPI.ViewModels;
 
-public class SqlAccountingModuleInfo
+public class SqlAccountModuleInfo
 {
     public string Code { get; set; } = null!;
     public string Description { get; set; } = null!;

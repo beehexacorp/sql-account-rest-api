@@ -9,11 +9,11 @@ namespace SqlAccountRestAPI.Controllers;
 public partial class AppController : ControllerBase
 {
 
-    private readonly SqlAccountingAppHelper _app;
-    private readonly SqlAccountingORM _microORM;
+    private readonly SqlAccountAppHelper _app;
+    private readonly SqlAccountORM _microORM;
     private readonly ILogger<AppController> _logger;
 
-    public AppController(SqlAccountingAppHelper app, SqlAccountingORM microORM, ILogger<AppController> logger)
+    public AppController(SqlAccountAppHelper app, SqlAccountORM microORM, ILogger<AppController> logger)
     {
         _app = app;
         _microORM = microORM;
@@ -73,10 +73,5 @@ public partial class AppController : ControllerBase
     public async Task<IActionResult> Update()
     {
         return Ok(await _app.Update());
-    }
-    [HttpPost("update-test")]
-    public IActionResult UpdateTest()
-    {
-        return Ok("test");
     }
 }

@@ -11,23 +11,23 @@ using System.IO.Compression;
 
 namespace SqlAccountRestAPI.Helpers;
 
-public class SqlAccountingAppHelper
+public class SqlAccountAppHelper
 {
-    private readonly SqlAccountingORM _microORM;
-    private readonly SqlAccountingFactory _factory;
+    private readonly SqlAccountORM _microORM;
+    private readonly SqlAccountFactory _factory;
 
-    public SqlAccountingAppHelper(
-        SqlAccountingORM microORM,
-        SqlAccountingFactory factory)
+    public SqlAccountAppHelper(
+        SqlAccountORM microORM,
+        SqlAccountFactory factory)
     {
         _microORM = microORM;
         _factory = factory;
     }
 
-    public async Task<SqlAccountingAppInfo> GetInfo()
+    public async Task<SqlAccountAppInfo> GetInfo()
     {
         dynamic app = _factory.GetInstance();
-        var result = new SqlAccountingAppInfo
+        var result = new SqlAccountAppInfo
         {
             Title = app.Title,
             ReleaseDate = app.ReleaseDate.ToString("yyyy-MM-dd"),
@@ -70,14 +70,14 @@ public class SqlAccountingAppHelper
         return result;
     }
 
-    public IEnumerable<SqlAccountingModuleInfo> GetModules()
+    public IEnumerable<SqlAccountModuleInfo> GetModules()
     {
         dynamic app = _factory.GetInstance();
-        var result = new List<SqlAccountingModuleInfo>();
+        var result = new List<SqlAccountModuleInfo>();
         for (int i = 0; i < app.Modules.Count; i++)
         {
             var item = app.Modules.Items(i);
-            result.Add(new SqlAccountingModuleInfo
+            result.Add(new SqlAccountModuleInfo
             {
                 Code = item.Code,
                 Description = item.Description
@@ -86,13 +86,13 @@ public class SqlAccountingAppHelper
         return result;
     }
 
-    public IEnumerable<SqlAccountingActionInfo> GetActions()
+    public IEnumerable<SqlAccountActionInfo> GetActions()
     {
         dynamic app = _factory.GetInstance();
-        var results = new List<SqlAccountingActionInfo>();
+        var results = new List<SqlAccountActionInfo>();
         for (int i = 0; i < app.Actions.Count; i++)
         {
-            results.Add(new SqlAccountingActionInfo
+            results.Add(new SqlAccountActionInfo
             {
                 Name = app.Actions.Items(i).Name
             });

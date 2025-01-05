@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace SqlAccountRestAPI.ViewModels;
-public class SqlAccountingAppInfo
+public class SqlAccountAppInfo
 {
     public string Title { get; set; } = null!;
     public string ReleaseDate { get; set; } = null!;

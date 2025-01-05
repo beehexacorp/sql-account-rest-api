@@ -15,15 +15,13 @@ using System.Runtime.InteropServices;
 
 namespace SqlAccountRestAPI.Helpers;
 
-public class SqlAccountingLoginHelper : SqlAccountingORM
+public class SqlAccountLoginHelper : SqlAccountORM
 {
-    private readonly string _credentialsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),ApplicationConstants.APPLICATION_NAME,"credentials.enc");
+    static private readonly string _credentialsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),ApplicationConstants.APPLICATION_NAME,"credentials.enc");
 
-    public SqlAccountingLoginHelper(SqlAccountingFactory sqlAccountingFactory) 
-        : base(sqlAccountingFactory)
-    {
-        Login();
-    }
+    public SqlAccountLoginHelper(SqlAccountFactory sqlAccountFactory) 
+        : base(sqlAccountFactory)
+    {}
     public void Login(){
         var loginInfo = ReLogin();
         if (loginInfo.Count == 0)
@@ -53,7 +51,7 @@ public class SqlAccountingLoginHelper : SqlAccountingORM
     }
         
 
-    public string GenerateKeyFromSystemInfo()
+    static public string GenerateKeyFromSystemInfo()
     {
         string machineGuid = GetMachineGuid();
 
@@ -66,7 +64,7 @@ public class SqlAccountingLoginHelper : SqlAccountingORM
         }
     }
 
-    public string GetMachineGuid()
+    static public string GetMachineGuid()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -112,7 +110,7 @@ public class SqlAccountingLoginHelper : SqlAccountingORM
         }
     }
 
-    public string DecryptAES(string cipherText, string key)
+    static public string DecryptAES(string cipherText, string key)
     {
         using (Aes aes = Aes.Create())
         {
@@ -129,7 +127,7 @@ public class SqlAccountingLoginHelper : SqlAccountingORM
         }
     }
 
-    public List<string> ReLogin()
+    static public List<string> ReLogin()
     {
         string directoryPath = Path.GetDirectoryName(_credentialsPath) ?? string.Empty;
         if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
