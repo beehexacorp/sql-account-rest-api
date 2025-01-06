@@ -15,8 +15,8 @@ namespace SqlAccountRestAPI.Controllers;
 [ApiController]
 public class StockItemController : ControllerBase
 {
-    private readonly SqlAccountingStockItemHelper _stockItemHelper;
-    public StockItemController(SqlAccountingStockItemHelper stockItemHelper)
+    private readonly SqlAccountStockItemHelper _stockItemHelper;
+    public StockItemController(SqlAccountStockItemHelper stockItemHelper)
     {
         _stockItemHelper = stockItemHelper;
     }

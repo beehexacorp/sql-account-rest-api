@@ -2,11 +2,11 @@ using Microsoft.VisualBasic;
 
 namespace SqlAccountRestAPI.Core;
 
-public class SqlAccountingBizObject : IDisposable
+public class SqlAccountBizObject : IDisposable
 {
     private dynamic _bizObject;
 
-    public SqlAccountingBizObject(dynamic bizObject)
+    public SqlAccountBizObject(dynamic bizObject)
     {
         this._bizObject = bizObject;
     }

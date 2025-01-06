@@ -12,8 +12,8 @@ namespace SqlAccountRestAPI.Controllers
     [ApiController]
     public partial class BizObjectController : ControllerBase
     {
-        private readonly SqlAccountingBizObjectHelper _bizObject;
-        public BizObjectController(SqlAccountingBizObjectHelper bizObject)
+        private readonly SqlAccountBizObjectHelper _bizObject;
+        public BizObjectController(SqlAccountBizObjectHelper bizObject)
         {
             _bizObject = bizObject;
         }

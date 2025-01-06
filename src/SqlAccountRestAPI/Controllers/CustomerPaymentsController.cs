@@ -15,8 +15,8 @@ namespace SqlAccountRestAPI.Controllers;
 [ApiController]
 public class CustomerPaymentController : ControllerBase
 {
-    private readonly SqlAccountingCustomerPaymentHelper _customerPaymentHelper;
-    public CustomerPaymentController(SqlAccountingCustomerPaymentHelper customerPaymentHelper)
+    private readonly SqlAccountCustomerPaymentHelper _customerPaymentHelper;
+    public CustomerPaymentController(SqlAccountCustomerPaymentHelper customerPaymentHelper)
     {
         _customerPaymentHelper = customerPaymentHelper;
     }

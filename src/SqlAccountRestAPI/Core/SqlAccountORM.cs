@@ -1,11 +1,14 @@
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System;
 using SqlAccountRestAPI.Helpers;
 
 namespace SqlAccountRestAPI.Core;
-public class SqlAccountingORM
+public class SqlAccountORM : IDisposable
 {
-    protected readonly SqlAccountingFactory _factory;
+    protected readonly SqlAccountFactory _factory;
 
-    public SqlAccountingORM(SqlAccountingFactory factory)
+    public SqlAccountORM(SqlAccountFactory factory)
     {
         _factory = factory;
     }
@@ -29,10 +32,10 @@ public class SqlAccountingORM
 
     }
 
-    public SqlAccountingBizObject FindBizObject(string name)
+    public SqlAccountBizObject FindBizObject(string name)
     {
         dynamic app = _factory.GetInstance();
-        var result = new SqlAccountingBizObject(app.BizObjects.Find(name));
+        var result = new SqlAccountBizObject(app.BizObjects.Find(name));
         return result;
     }
 
@@ -172,5 +175,12 @@ FETCH NEXT {limit} ROWS ONLY";
             })
             .ToList();
         return results;
+    }
+    public void Dispose()
+    {
+        if (_factory != null)
+        {
+            _factory.Dispose();
+        }
     }
 }

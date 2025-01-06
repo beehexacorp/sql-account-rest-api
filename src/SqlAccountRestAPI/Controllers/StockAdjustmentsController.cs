@@ -15,8 +15,8 @@ namespace SqlAccountRestAPI.Controllers;
 [ApiController]
 public class StockAdjustmentController : ControllerBase
 {
-    private readonly SqlAccountingStockAdjustmentHelper _stockAdjustmentHelper;
-    public StockAdjustmentController(SqlAccountingStockAdjustmentHelper stockAdjustmentHelper)
+    private readonly SqlAccountStockAdjustmentHelper _stockAdjustmentHelper;
+    public StockAdjustmentController(SqlAccountStockAdjustmentHelper stockAdjustmentHelper)
     {
         _stockAdjustmentHelper = stockAdjustmentHelper;
     }

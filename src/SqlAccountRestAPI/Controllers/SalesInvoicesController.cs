@@ -15,8 +15,8 @@ namespace SqlAccountRestAPI.Controllers;
 [ApiController]
 public class SalesInvoiceController : ControllerBase
 {
-    private readonly SqlAccountingSalesInvoiceHelper _salesInvoiceHelper;
-    public SalesInvoiceController(SqlAccountingSalesInvoiceHelper salesInvoiceHelper)
+    private readonly SqlAccountSalesInvoiceHelper _salesInvoiceHelper;
+    public SalesInvoiceController(SqlAccountSalesInvoiceHelper salesInvoiceHelper)
     {
         _salesInvoiceHelper = salesInvoiceHelper;
     }

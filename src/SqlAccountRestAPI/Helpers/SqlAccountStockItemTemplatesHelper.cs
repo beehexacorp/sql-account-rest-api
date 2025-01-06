@@ -7,20 +7,21 @@ using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using SqlAccountRestAPI.Core;
+using System.Web;
 
 namespace SqlAccountRestAPI.Helpers;
 
-public class SqlAccountingStockItemTemplateHelper
+public class SqlAccountStockItemTemplateHelper
 {
-    private SqlAccountingORM _microORM;
-    public SqlAccountingStockItemTemplateHelper(SqlAccountingORM microORM)
+    private SqlAccountORM _microORM;
+    public SqlAccountStockItemTemplateHelper(SqlAccountORM microORM)
     {
         _microORM = microORM;
     }
 
     public IEnumerable<IDictionary<string, object>> GetByCode(string code, int limit, int offset){
         var mainFields = _microORM.GetFields("ST_ITEM_TPL", limit, offset).Distinct().ToHashSet(); //app.ComServer.DBManager.NewDataSet("SELECT * FROM AR_CUSTOMER").Fields;
-
+        code = HttpUtility.UrlDecode(code);
         var sql = $@"SELECT * 
 FROM (
     SELECT *

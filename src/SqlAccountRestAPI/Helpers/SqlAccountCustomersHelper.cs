@@ -8,13 +8,14 @@ using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using SqlAccountRestAPI.Core;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace SqlAccountRestAPI.Helpers;
 
-public class SqlAccountingCustomerHelper
+public class SqlAccountCustomerHelper
 {
-    private SqlAccountingORM _microORM;
-    public SqlAccountingCustomerHelper(SqlAccountingORM microORM)
+    private SqlAccountORM _microORM;
+    public SqlAccountCustomerHelper(SqlAccountORM microORM)
     {
         _microORM = microORM;
     }
@@ -98,7 +99,7 @@ LEFT JOIN AR_CUSTOMERBRANCH
     }
     public IEnumerable<IDictionary<string, object>> GetByCode(string code, int limit, int offset){
         var mainFields = _microORM.GetFields("AR_CUSTOMER", limit, offset).Distinct().ToHashSet(); //app.ComServer.DBManager.NewDataSet("SELECT * FROM AR_CUSTOMER").Fields;
-
+        code = HttpUtility.UrlDecode(code);
         var sql = $@"SELECT * 
 FROM (
     SELECT *

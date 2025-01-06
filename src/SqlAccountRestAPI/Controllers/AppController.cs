@@ -9,11 +9,11 @@ namespace SqlAccountRestAPI.Controllers;
 public partial class AppController : ControllerBase
 {
 
-    private readonly SqlAccountingAppHelper _app;
-    private readonly SqlAccountingORM _microORM;
+    private readonly SqlAccountAppHelper _app;
+    private readonly SqlAccountORM _microORM;
     private readonly ILogger<AppController> _logger;
 
-    public AppController(SqlAccountingAppHelper app, SqlAccountingORM microORM, ILogger<AppController> logger)
+    public AppController(SqlAccountAppHelper app, SqlAccountORM microORM, ILogger<AppController> logger)
     {
         _app = app;
         _microORM = microORM;
@@ -21,17 +21,17 @@ public partial class AppController : ControllerBase
     }
 
     [HttpPost("login")]
-    public IActionResult GetLogin([FromBody] LoginRequest request)
+    public async Task<IActionResult> GetLogin([FromBody] LoginRequest request)
     {
         _microORM.Login(request.Username, request.Password);
-        return Ok(_app.GetInfo());
+        return Ok(await _app.GetInfo());
     }
 
     // GET: api/<AppController>
     [HttpGet("info")]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        return Ok(_app.GetInfo());
+        return Ok(await _app.GetInfo());
     }
     [HttpGet("actions")]
     public IActionResult GetActions()
@@ -68,5 +68,10 @@ public partial class AppController : ControllerBase
         {
             return BadRequest(ex);
         }
+    }
+    [HttpPost("update")]
+    public async Task<IActionResult> Update()
+    {
+        return Ok(await _app.Update());
     }
 }
