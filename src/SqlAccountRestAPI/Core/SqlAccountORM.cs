@@ -180,7 +180,7 @@ FETCH NEXT {limit} ROWS ONLY";
     {
         if (_factory != null)
         {
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(_factory);
+            _factory.Dispose();
         }
     }
 }

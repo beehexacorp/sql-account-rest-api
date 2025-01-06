@@ -7,38 +7,6 @@ namespace SqlAccountRestAPI.Core;
 
 public class SqlAccountFactory : IDisposable
 {
-    //     [DllImport("kernel32.dll", SetLastError = true)]
-    //     public static extern uint WTSGetActiveConsoleSessionId();
-
-    //     [DllImport("wtsapi32.dll", SetLastError = true)]
-    //     public static extern bool WTSQuerySessionInformation(IntPtr hServer, uint sessionId, WTS_INFO_CLASS wtsInfoClass, out IntPtr ppBuffer, out uint pBytesReturned);
-
-    //     [DllImport("user32.dll", SetLastError = true)]
-    //     public static extern bool SetThreadDesktop(uint hDesktop);
-
-    //     public enum WTS_INFO_CLASS
-    // {
-    //     WTSUserName = 5,
-    //     WTSDomainName = 7,
-    //     WTSConnectState = 8,
-    //     WTSClientName = 10,
-    //     WTSClientAddress = 14,
-    //     WTSIdleTime = 15,
-    //     WTSLogonTime = 16,
-    //     WTSIncomingBytes = 17,
-    //     WTSOutgoingBytes = 18,
-    //     WTSIncomingFrames = 19,
-    //     WTSOutgoingFrames = 20,
-    //     WTSClientProtocolType = 22,
-    //     WTSClientDirectory = 23,
-    //     WTSClientBuildNumber = 24,
-    //     WTSClientNameLength = 25,
-    //     WTSClientAddressLength = 26,
-    //     WTSClientDirectoryLength = 27,
-    //     WTSClientBuildNumberLength = 28,
-    //     WTSSessionId = 29,
-    // }
-
     private dynamic? _app = null;
     public dynamic GetInstance()
     {
@@ -46,8 +14,18 @@ public class SqlAccountFactory : IDisposable
         {
             try
             {
-                _app.IsLogin();
+                var isLoginTask = Task.Run(() => _app.IsLogin());
+
+                if (!isLoginTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    throw new TimeoutException("The login process took too long.");
+                }
                 return _app;
+            }
+            catch (TimeoutException)
+            {
+                Console.WriteLine("Timeout: Login process exceeded 10 seconds.");
+                _app = null;
             }
             catch (COMException)
             {
@@ -63,6 +41,7 @@ public class SqlAccountFactory : IDisposable
             if (lBizType == null)
                 throw new Exception("Cannot load SQLAcc.BizApp Assembly.");
 
+            EndProcess("SQLACC");
             _app = Activator.CreateInstance(lBizType);
 
             var loginInfo = SqlAccountLoginHelper.ReLogin();
@@ -93,5 +72,19 @@ public class SqlAccountFactory : IDisposable
     {
         System.Runtime.InteropServices.Marshal.ReleaseComObject(_app);
         _app = null;
+    }
+
+    public void EndProcess(string processName)
+    {
+
+        var shellScript = $@"
+        $processName = '{processName}'
+        $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
+        if ($process) {{ 
+            Stop-Process -Name $processName -Force
+            Write-Host 'Process $processName has stopped.'
+        }}";
+        _ = SystemHelper.RunPowerShellCommand(shellScript);
+        Thread.Sleep(1000);
     }
 }
