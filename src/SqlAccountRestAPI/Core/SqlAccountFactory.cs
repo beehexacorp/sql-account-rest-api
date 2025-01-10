@@ -20,11 +20,23 @@ public class SqlAccountFactory : IDisposable
                 {
                     throw new TimeoutException("The login process took too long.");
                 }
+            
+                // The app must be logined
+                if (!isLoginTask.Result)
+                {
+                    throw new InvalidOperationException("Login failed: _app.IsLogin() returned false.");
+                }
+
                 return _app;
             }
             catch (TimeoutException)
             {
                 Console.WriteLine("Timeout: Login process exceeded 10 seconds.");
+                _app = null;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine(ex.Message);
                 _app = null;
             }
             catch (COMException)
