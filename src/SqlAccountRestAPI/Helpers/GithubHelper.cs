@@ -15,7 +15,7 @@ namespace SqlAccountRestAPI.Helpers
             using HttpClient client = new HttpClient();
 
             // Add a User-Agent header required by GitHub API
-            client.DefaultRequestHeaders.Add("User-Agent", "SqlAccountRestAPIMonitor");
+            client.DefaultRequestHeaders.UserAgent.TryParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
