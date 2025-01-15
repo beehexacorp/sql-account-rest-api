@@ -24,9 +24,9 @@ public class SqlAccountORM : IDisposable
         if (app.IsLogin == true)
         {
             app.Logout();
-            _factory.Release();
+            // _factory.Release();
             
-            app = _factory.GetInstance();
+            // app = _factory.GetInstance();
         }
         app.Login(username, password);
 
