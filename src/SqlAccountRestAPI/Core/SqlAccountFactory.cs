@@ -29,18 +29,9 @@ public class SqlAccountFactory : IDisposable
 
                 return _app;
             }
-            catch (TimeoutException)
+            catch (Exception e)
             {
-                Console.WriteLine("Timeout: Login process exceeded 10 seconds.");
-                _app = null;
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine(ex.Message);
-                _app = null;
-            }
-            catch (COMException)
-            {
+                Console.WriteLine(e.Message);
                 _app = null;
             }
         }
