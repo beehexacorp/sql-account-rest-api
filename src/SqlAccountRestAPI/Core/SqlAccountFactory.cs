@@ -8,7 +8,7 @@ namespace SqlAccountRestAPI.Core;
 public class SqlAccountFactory : IDisposable
 {
     private dynamic? _app = null;
-    public dynamic GetInstance()
+    public dynamic GetInstance(bool autoLogin = true)
     {
         if (_app != null)
         {
@@ -20,7 +20,7 @@ public class SqlAccountFactory : IDisposable
                 {
                     throw new TimeoutException("The login process took too long.");
                 }
-            
+
                 // The app must be logined
                 if (!isLoginTask.Result)
                 {
@@ -55,11 +55,13 @@ public class SqlAccountFactory : IDisposable
 
             EndProcess("SQLACC");
             _app = Activator.CreateInstance(lBizType);
-
-            var loginInfo = SqlAccountLoginHelper.ReLogin();
-            var username = loginInfo[0];
-            var password = loginInfo[1];
-            _app!.Login(username, password);
+            if(autoLogin)
+            {
+                var loginInfo = SqlAccountLoginHelper.ReLogin();
+                var username = loginInfo[0];
+                var password = loginInfo[1];
+                _app!.Login(username, password);
+            }
 
             if (_app == null)
                 throw new Exception("Cannot create instance of SQLAcc.BizApp.");
