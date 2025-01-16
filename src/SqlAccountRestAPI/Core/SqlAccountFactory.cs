@@ -49,6 +49,7 @@ public class SqlAccountFactory : IDisposable
             if(autoLogin)
             {
                 var loginInfo = SqlAccountLoginHelper.ReLogin();
+                if(loginInfo.Count == 0) return _app!;
                 var username = loginInfo[0];
                 var password = loginInfo[1];
                 _app!.Login(username, password);
