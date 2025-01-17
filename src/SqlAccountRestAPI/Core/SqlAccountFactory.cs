@@ -32,7 +32,7 @@ public class SqlAccountFactory : IDisposable
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                _app = null;
+                Release();
             }
         }
 
