@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 namespace SqlAccountRestAPI.Helpers
 
 {
@@ -137,6 +139,46 @@ namespace SqlAccountRestAPI.Helpers
             var configPath = Path.Combine(npmFolder, ApplicationConstants.NPM_PACKAGE_NAME,
                 ApplicationConstants.CONFIGURATION_FOLDER_NAME, ApplicationConstants.CONFIGURATION_FILE_NAME);
             return configPath;
+        }
+        public static void EndProcess(string processName)
+        {
+
+            var shellScript = $@"
+            $processName = '{processName}'
+            $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
+            if ($process) {{ 
+                Stop-Process -Name $processName -Force
+                Write-Host 'Process $processName has stopped.'
+            }}";
+            _ = SystemHelper.RunPowerShellCommand(shellScript);
+            Thread.Sleep(1000);
+        }
+        public static bool IsComObjectResponsive(Func<bool> action, TimeSpan timeout)
+        {
+            try
+            {
+                var task = Task.Run(action);
+
+                if (task.Wait(timeout))
+                {
+                    return task.Result; 
+                }
+                else
+                {
+                    Console.WriteLine("Timeout: COM object is not responsive.");
+                    return false;
+                }
+            }
+            catch (AggregateException ex) when (ex.InnerException is COMException)
+            {
+                Console.WriteLine("COM object threw an exception.");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return false;
+            }
         }
 
     }
