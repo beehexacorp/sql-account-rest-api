@@ -39,7 +39,7 @@ LEFT JOIN ST_ITEM_UOM
     public IEnumerable<IDictionary<string, object>> GetFromDaysAgo(int days, int limit, int offset){
         var mainFields = _microORM.GetFields("ST_ITEM", limit, offset).Distinct().ToHashSet(); 
         
-        var currentUnixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var currentUnixTime = new DateTimeOffset(DateTime.UtcNow.Date).ToUnixTimeSeconds();
         var convertedUnixTime = currentUnixTime - (days * 86400);
         var sql = $@"SELECT * 
 FROM (
