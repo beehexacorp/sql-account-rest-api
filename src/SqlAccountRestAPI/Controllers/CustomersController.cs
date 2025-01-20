@@ -67,7 +67,6 @@ public class CustomerController : ControllerBase
         {
             var result = _customerHelper.AddPayment(
                 request.DocumentNo,
-                request.Code,
                 request.PaymentMethod,
                 request.Project);
             return Ok(result);

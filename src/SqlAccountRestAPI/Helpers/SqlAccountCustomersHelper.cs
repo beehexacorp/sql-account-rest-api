@@ -22,15 +22,11 @@ public class SqlAccountCustomerHelper
 
     public IDictionary<string, object> AddPayment(
         string documentNo,
-        string code,
         string paymentMethod,
         string project)
     {
         var customerInvoice = _microORM.QueryFirstOrDefault(
-            "SELECT FROMDOCTYPE, DOCAMT FROM AR_IV WHERE DOCNO='" + documentNo + "'",
-            new Dictionary<string, object?> {
-                {"DOCNO", documentNo}
-            });
+            "SELECT CODE, FROMDOCTYPE, DOCAMT FROM AR_IV WHERE DOCNO='" + documentNo + "'");
 
         if (customerInvoice == null)
         {
@@ -41,10 +37,9 @@ public class SqlAccountCustomerHelper
         using (var paymentBizObject = _microORM.FindBizObject("AR_PM"))
         {
             var mainDataset = paymentBizObject.FindMainDataset();
-
             paymentBizObject.New();
 
-            mainDataset.FindField("CODE").value = code;
+            mainDataset.FindField("CODE").value = customerInvoice["CODE"];
             mainDataset.FindField("PAYMENTMETHOD").value = paymentMethod;
             mainDataset.FindField("DOCAMT").value = customerInvoice["DOCAMT"];
             mainDataset.FindField("LOCALDOCAMT").value = customerInvoice["DOCAMT"];
@@ -52,8 +47,7 @@ public class SqlAccountCustomerHelper
             mainDataset.FindField("PAYMENTPROJECT").value = project;
             mainDataset.Post();
 
-            var knockOfCds = paymentBizObject.FindDataset("cdsKnockOff");
-            //Step 5: Knock Off IV
+            var knockOfCds = paymentBizObject.FindDataset("cdsKnockOff");            
             if (knockOfCds.Locate("DocType;DocNo", new object[2] { "IV", documentNo }, false, false))
             {
                 knockOfCds.Edit();
