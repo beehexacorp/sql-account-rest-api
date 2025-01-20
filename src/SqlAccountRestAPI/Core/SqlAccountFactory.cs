@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System;
 using SqlAccountRestAPI.Helpers;
+using System.Diagnostics;
 using System.Reflection;
 namespace SqlAccountRestAPI.Core;
 
@@ -14,25 +15,21 @@ public class SqlAccountFactory : IDisposable
         {
             try
             {
-                var isLoginTask = Task.Run(() => _app.IsLogin());
-
-                if (!isLoginTask.Wait(TimeSpan.FromSeconds(10)))
+                var comChecker = SystemHelper.IsComObjectResponsive(() => _app.IsLogin, TimeSpan.FromSeconds(5));
+                if (!comChecker)
                 {
-                    throw new TimeoutException("The login process took too long.");
+                    throw new Exception("COM object is not responsive.");
                 }
-
-                // The app must be logined
-                if (!isLoginTask.Result)
-                {
-                    throw new InvalidOperationException("Login failed: _app.IsLogin() returned false.");
+                if(!_app.IsLogin){
+                    throw new Exception("App is not logged in.");
                 }
-
                 return _app;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Release();
+                // Release();
+                _app = null;
             }
         }
 
@@ -44,12 +41,13 @@ public class SqlAccountFactory : IDisposable
             if (lBizType == null)
                 throw new Exception("Cannot load SQLAcc.BizApp Assembly.");
 
-            EndProcess("SQLACC");
+            SystemHelper.EndProcess("SQLACC");
             _app = Activator.CreateInstance(lBizType);
-            if(autoLogin)
+            if (autoLogin)
             {
                 var loginInfo = SqlAccountLoginHelper.ReLogin();
-                if(loginInfo.Count == 0) return _app!;
+                if (loginInfo.Count == 0)
+                    throw new Exception("The login information in the credentials file is invalid or outdated. Please log in again to refresh your credentials.");
                 var username = loginInfo[0];
                 var password = loginInfo[1];
                 _app!.Login(username, password);
@@ -80,17 +78,4 @@ public class SqlAccountFactory : IDisposable
         _app = null;
     }
 
-    public void EndProcess(string processName)
-    {
-
-        var shellScript = $@"
-        $processName = '{processName}'
-        $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
-        if ($process) {{ 
-            Stop-Process -Name $processName -Force
-            Write-Host 'Process $processName has stopped.'
-        }}";
-        _ = SystemHelper.RunPowerShellCommand(shellScript);
-        Thread.Sleep(1000);
-    }
 }
