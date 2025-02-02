@@ -65,10 +65,9 @@ public class CustomerController : ControllerBase
     {
         try
         {
-            var result = _customerHelper.AddPayment(
-                request.DocumentNo,
-                request.PaymentMethod,
-                request.Project);
+            var sqlAccountVersion = SqlAccountVersionHelper.GetRunningVersion();
+            var acceptedParams = SqlAccountVersionHelper.GetConfig(sqlAccountVersion, "CUSTOMER", "AddPayment");
+            var result = SystemHelper.InvokeMethod(_customerHelper, "AddPayment", request, acceptedParams);
             return Ok(result);
         }
         catch (Exception ex)
