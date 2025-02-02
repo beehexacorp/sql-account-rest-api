@@ -8,6 +8,8 @@ using System.Text.Json;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Linq;
+using System.Reflection;
 namespace SqlAccountRestAPI.Helpers
 
 {
@@ -134,7 +136,8 @@ namespace SqlAccountRestAPI.Helpers
                 throw new InvalidOperationException("Failed to write data to the JSON file.", ex);
             }
         }
-        public static async Task<string> GetCliConfigurationFilePath(){
+        public static async Task<string> GetCliConfigurationFilePath()
+        {
             var npmFolder = await RunPowerShellCommand("npm -g root");
             var configPath = Path.Combine(npmFolder, ApplicationConstants.NPM_PACKAGE_NAME,
                 ApplicationConstants.CONFIGURATION_FOLDER_NAME, ApplicationConstants.CONFIGURATION_FILE_NAME);
@@ -161,7 +164,7 @@ namespace SqlAccountRestAPI.Helpers
 
                 if (task.Wait(timeout))
                 {
-                    return task.Result; 
+                    return task.Result;
                 }
                 else
                 {
@@ -179,6 +182,27 @@ namespace SqlAccountRestAPI.Helpers
                 Console.WriteLine($"Unexpected error: {ex.Message}");
                 return false;
             }
+        }
+        public static object InvokeMethod(object target, string methodName, object request, List<string> acceptedParams)
+        {
+            MethodInfo method = target.GetType().GetMethod(methodName)!;
+            if (method == null)
+            {
+                throw new Exception($"Method {methodName} not found on {target.GetType().Name}");
+            }
+
+            var args = acceptedParams.Select(paramName =>
+            {
+                var property = request.GetType().GetProperty(paramName);
+                if (property == null)
+                {
+                    Console.WriteLine($"Warning: Property {paramName} not found in request.");
+                    return null;
+                }
+                return property.GetValue(request);
+            }).ToArray();
+
+            return method.Invoke(target, args)!;
         }
 
     }
