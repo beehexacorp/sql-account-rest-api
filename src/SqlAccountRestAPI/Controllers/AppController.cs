@@ -56,19 +56,6 @@ public partial class AppController : ControllerBase
         return Ok(_app.GetBizObjectInfo(name));
     }
 
-    [HttpGet("logs/test")]
-    public IActionResult TestLog()
-    {
-        try
-        {
-            _logger.LogInformation("This is a test message");
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex);
-        }
-    }
     [HttpPost("update")]
     public async Task<IActionResult> Update()
     {
