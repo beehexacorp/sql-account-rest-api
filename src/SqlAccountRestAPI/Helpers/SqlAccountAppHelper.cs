@@ -26,7 +26,8 @@ public class SqlAccountAppHelper
 
     public async Task<SqlAccountTotalInfo> GetInfo()
     {
-        var result = new SqlAccountTotalInfo(){
+        var result = new SqlAccountTotalInfo()
+        {
             sqlAccountAppInfo = GetAppInfo(),
             releaseInfo = await GetReleaseInfo()
         };
@@ -223,9 +224,10 @@ public class SqlAccountAppHelper
         dynamic app = _factory.GetInstance();
         return app.Version;
     }
-    public async Task<IDictionary<string,object>> GetReleaseInfo(){
+    public async Task<IDictionary<string, object>> GetReleaseInfo()
+    {
         string configPath = await SystemHelper.GetCliConfigurationFilePath();
-        
+
         if (!File.Exists(configPath))
         {
             return new Dictionary<string, object>
@@ -233,39 +235,27 @@ public class SqlAccountAppHelper
                     { "Error", "The configuration file does not exist." }
                 };
         }
-        try
-        {
-            var result = new Dictionary<string,object>{};
-            string fileContent = File.ReadAllText(configPath);
+        var result = new Dictionary<string, object> { };
+        string fileContent = File.ReadAllText(configPath);
 
-            // Parse JSON to Dictionary
-            var options = new JsonSerializerOptions
-            {
-                AllowTrailingCommas = true,
-                ReadCommentHandling = JsonCommentHandling.Skip
-            };
-            var applicationInfo = JsonSerializer.Deserialize<Dictionary<string, object>>(fileContent, options);
-            // handle Github API limit
-            try {
-                var releaseInfo = await GithubHelper.GetLatestReleaseInfo();
-                applicationInfo!["LATEST_VERSION"] = releaseInfo["tag_name"];
-            }
-            catch (Exception ex){
-                applicationInfo!["LATEST_VERSION"] = $"Error: {ex.Message}";
-            }
-            
-            return applicationInfo;
-        }
-        catch (Exception ex)
+        // Parse JSON to Dictionary
+        var options = new JsonSerializerOptions
         {
-            return new Dictionary<string, object>
-            {
-                { "Error", ex.Message }
-            };
-        }
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
+        var applicationInfo = JsonSerializer.Deserialize<Dictionary<string, object>>(fileContent, options);
+        // handle Github API limit
+
+        var releaseInfo = await GithubHelper.GetLatestReleaseInfo();
+        applicationInfo!["LATEST_VERSION"] = releaseInfo["tag_name"];
+
+
+        return applicationInfo;
 
     }
-    public SqlAccountAppInfo GetAppInfo(){
+    public SqlAccountAppInfo GetAppInfo()
+    {
         dynamic app = _factory.GetInstance();
         var result = new SqlAccountAppInfo
         {

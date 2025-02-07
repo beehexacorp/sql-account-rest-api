@@ -25,11 +25,11 @@ public class SqlAccountFactory : IDisposable
                 }
                 return _app;
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e.Message);
                 // Release();
                 _app = null;
+                throw;
             }
         }
 
