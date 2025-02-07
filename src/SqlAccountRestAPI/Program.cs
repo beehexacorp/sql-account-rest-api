@@ -63,6 +63,7 @@ builder.Services.AddSingleton<SqlAccountORM>(provider =>
     var sqlAccountFactory = provider.GetRequiredService<SqlAccountFactory>();
     return new SqlAccountLoginHelper(sqlAccountFactory);
 });
+builder.Services.AddSingleton<SqlAccountVersionHelper>();
 builder.Services.AddTransient<SqlAccountAppHelper>();
 builder.Services.AddTransient<SqlAccountBizObjectHelper>();
 builder.Services.AddTransient<SqlAccountCustomerHelper>();

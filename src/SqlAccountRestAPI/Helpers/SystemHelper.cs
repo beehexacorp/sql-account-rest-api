@@ -183,15 +183,19 @@ namespace SqlAccountRestAPI.Helpers
                 return false;
             }
         }
-        public static object InvokeMethod(object target, string methodName, object request, List<string> acceptedParams)
+        public static object InvokeMethod(object target, string methodName, object request, List<string>? acceptedParams)
         {
             MethodInfo method = target.GetType().GetMethod(methodName)!;
             if (method == null)
             {
                 throw new Exception($"Method {methodName} not found on {target.GetType().Name}");
             }
+            var paramNames = acceptedParams ?? request.GetType()
+                .GetProperties()
+                .Select(p => p.Name)
+                .ToList();
 
-            var args = acceptedParams.Select(paramName =>
+            var args = paramNames.Select(paramName =>
             {
                 var property = request.GetType().GetProperty(paramName);
                 if (property == null)
