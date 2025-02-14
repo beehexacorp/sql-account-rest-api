@@ -24,49 +24,13 @@ public class SqlAccountAppHelper
         _factory = factory;
     }
 
-    public async Task<SqlAccountAppInfo> GetInfo()
+    public async Task<SqlAccountTotalInfo> GetInfo()
     {
-        dynamic app = _factory.GetInstance();
-        var result = new SqlAccountAppInfo
+        var result = new SqlAccountTotalInfo()
         {
-            Title = app.Title,
-            ReleaseDate = app.ReleaseDate.ToString("yyyy-MM-dd"),
-            BuildNo = app.BuildNo.ToString()
+            sqlAccountAppInfo = GetAppInfo(),
+            releaseInfo = await GetReleaseInfo()
         };
-
-        string configPath = await SystemHelper.GetCliConfigurationFilePath();
-        if (File.Exists(configPath))
-        {
-            try
-            {
-                string fileContent = File.ReadAllText(configPath);
-
-                // Parse JSON to Dictionary
-                var options = new JsonSerializerOptions
-                {
-                    AllowTrailingCommas = true,
-                    ReadCommentHandling = JsonCommentHandling.Skip
-                };
-                var applicationInfo = JsonSerializer.Deserialize<Dictionary<string, object>>(fileContent, options);
-                var releaseInfo = await GithubHelper.GetLatestReleaseInfo();
-                applicationInfo!["LATEST_VERSION"] = releaseInfo["tag_name"];
-                result.ApplicationInfo = applicationInfo;
-            }
-            catch (Exception ex)
-            {
-                result.ApplicationInfo = new Dictionary<string, object>
-                {
-                    { "Error", ex.Message }
-                };
-            }
-        }
-        else
-        {
-            result.ApplicationInfo = new Dictionary<string, object>
-                {
-                    { "Error", "The configuration file does not exist." }
-                };
-        }
         return result;
     }
 
@@ -166,16 +130,15 @@ public class SqlAccountAppHelper
     }
     public async Task<IDictionary<string, object>> Update()
     {
-        var appInfo = await GetInfo();
-        var releaseInfo = await GithubHelper.GetLatestReleaseInfo();
+        var releaseInfo = await GetReleaseInfo();
         SystemHelper.WriteJsonFile(await SystemHelper.GetCliConfigurationFilePath(), new Dictionary<string, object>
         {
-            {"API_VERSION", releaseInfo["tag_name"]}
+            {"API_VERSION", releaseInfo["LATEST_VERSION"]}
         });
         string downloadUrl = await GithubHelper.GetDownloadUrl();
 
-        string appDir = appInfo.ApplicationInfo["APP_DIR"].ToString()!.Replace("\\", "/");
-        string appName = appInfo.ApplicationInfo["APP_NAME"].ToString()!;
+        string appDir = releaseInfo["APP_DIR"].ToString()!.Replace("\\", "/");
+        string appName = releaseInfo["APP_NAME"].ToString()!;
         string appPort = ApplicationConstants.APPLICATION_PORT.ToString();
         string ProcessName = ApplicationConstants.APPLICATION_NAME.ToString();
         // PowerShell script as a string
@@ -255,5 +218,52 @@ public class SqlAccountAppHelper
         {
             { "Status", "Update process started. Service will restart soon." },
         };
+    }
+    public string GetVersion()
+    {
+        dynamic app = _factory.GetInstance();
+        return app.Version;
+    }
+    public async Task<IDictionary<string, object>> GetReleaseInfo()
+    {
+        string configPath = await SystemHelper.GetCliConfigurationFilePath();
+
+        if (!File.Exists(configPath))
+        {
+            return new Dictionary<string, object>
+                {
+                    { "Error", "The configuration file does not exist." }
+                };
+        }
+        var result = new Dictionary<string, object> { };
+        string fileContent = File.ReadAllText(configPath);
+
+        // Parse JSON to Dictionary
+        var options = new JsonSerializerOptions
+        {
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
+        var applicationInfo = JsonSerializer.Deserialize<Dictionary<string, object>>(fileContent, options);
+        // handle Github API limit
+
+        var releaseInfo = await GithubHelper.GetLatestReleaseInfo();
+        applicationInfo!["LATEST_VERSION"] = releaseInfo["tag_name"];
+
+
+        return applicationInfo;
+
+    }
+    public SqlAccountAppInfo GetAppInfo()
+    {
+        dynamic app = _factory.GetInstance();
+        var result = new SqlAccountAppInfo
+        {
+            Title = app.Title,
+            ReleaseDate = app.ReleaseDate.ToString("yyyy-MM-dd"),
+            BuildNo = app.BuildNo.ToString(),
+            Version = app.Version.ToString()
+        };
+        return result;
     }
 }

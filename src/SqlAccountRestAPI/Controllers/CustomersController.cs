@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SqlAccountRestAPI.Core;
@@ -16,9 +17,11 @@ namespace SqlAccountRestAPI.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly SqlAccountCustomerHelper _customerHelper;
-    public CustomerController(SqlAccountCustomerHelper customerHelper)
+    private readonly SqlAccountVersionHelper _sqlAccountVersionHelper;
+    public CustomerController(SqlAccountCustomerHelper customerHelper, SqlAccountVersionHelper sqlAccountVersionHelper)
     {
         _customerHelper = customerHelper;
+        _sqlAccountVersionHelper = sqlAccountVersionHelper;
     }
     // [HttpGet("AllDaysToNow")]
     // public IActionResult GetByDaysToNow([FromQuery] int days = 0)
@@ -65,11 +68,9 @@ public class CustomerController : ControllerBase
     {
         try
         {
-            var result = _customerHelper.AddPayment(
-                request.DocumentNo,
-                request.Code,
-                request.PaymentMethod,
-                request.Project);
+            var sqlAccountVersion = _sqlAccountVersionHelper.GetRunningVersion();
+            var acceptedParams = _sqlAccountVersionHelper.GetConfig(sqlAccountVersion, "CUSTOMER", "AddPayment");
+            var result = SystemHelper.InvokeMethod(_customerHelper, "AddPayment", request, acceptedParams);
             return Ok(result);
         }
         catch (Exception ex)
