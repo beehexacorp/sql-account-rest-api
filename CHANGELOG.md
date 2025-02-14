@@ -1,27 +1,22 @@
-# Changelog
+# Feb 14, 2025
+## Improve SQLACC not response handler
+### Overview
+The previous version will restart SQLACC whenever `app` is not defined
 
-## [release-0.0.43] - 2025-01-22
-### Added
-- Added `Helpers/SystemHelper.cs` with the function `IsComObjectResponsive` to check if SQL Account (SQLACC) has been closed by the user or not.
-- Added release to the login function. This function behaves the same as when the user closes the application.
+This will interupt client task if they are interacting with SQLACC then the SqlAccountRestAPI receive a request 
+### Files changed
+- Edit `src/SqlAccountRestAPI/Core/SqlAccountFactory.cs` - Rearrange the `EndProcess` function calling
+## Clean dump try-catch
+### Overview
+Some try-catch blocks are not necessary and may hinder the workflow 
+### Files changed
+- Edit `src/SqlAccountRestAPI/Core/SqlAccountFactory.cs`
+- Edit `src/SqlAccountRestAPI/Helpers/SqlAccountAppHelper.cs`
+# Jan 22, 2025
+## Improve SQLACC shutdown by client case
+### Overview
+Add function `IsComObjectResponsive` to check if SQLACC has been closed by client or not
 
-### Changed
-- Cleaned the "Add Customer Payment" request by removing the unnecessary `CODE` field.
-- Moved the function `EndProcess` from `Core/SqlAccountFactory.cs` to `Helpers/SystemHelper.cs`.
-
-### Fixed
-- Fixed the API related to `GET FROM_DAYS_AGO` where time calculation now starts from the beginning of the day.
-- Fixed the relogin feature to work correctly when the credential file is deleted.
-
----
-
-## [release-0.0.42] - 2025-01-17
-### Added
-- Added a check to verify if SQLACC is logged in; if not, the system will perform a relogin.
-- Added the parameter `autoLogin = False` in function `Core/SqlAccountFactory.cs/GetInstance` for the API Login function.
-
----
-
-## [release-0.0.41] - 2025-01-10
-### Changed
-- Updated the API POST update to ensure compatibility with Windows startup deployment.
+This is more effective and stable than the previous one
+### Files changed
+- Edit `Helpers/SystemHelper.cs` - Add function `IsComObjectResponsive`

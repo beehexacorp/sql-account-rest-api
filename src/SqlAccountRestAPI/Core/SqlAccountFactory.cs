@@ -18,6 +18,7 @@ public class SqlAccountFactory : IDisposable
                 var comChecker = SystemHelper.IsComObjectResponsive(() => _app.IsLogin, TimeSpan.FromSeconds(5));
                 if (!comChecker)
                 {
+                    SystemHelper.EndProcess("SQLACC");
                     throw new Exception("COM object is not responsive.");
                 }
                 if(!_app.IsLogin){
@@ -41,7 +42,6 @@ public class SqlAccountFactory : IDisposable
             if (lBizType == null)
                 throw new Exception("Cannot load SQLAcc.BizApp Assembly.");
 
-            SystemHelper.EndProcess("SQLACC");
             _app = Activator.CreateInstance(lBizType);
             if (autoLogin)
             {
