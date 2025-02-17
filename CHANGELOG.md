@@ -1,3 +1,9 @@
+# Feb 17, 2025
+## Update API POST app/update
+### Overview
+Implement update for windows service and IIS deployment method
+### Files changed
+- Edit `src/SqlAccountRestAPI/Helpers/SqlAccountAppHelper.cs`
 # Feb 14, 2025
 ## Improve SQLACC not response handler
 ### Overview
