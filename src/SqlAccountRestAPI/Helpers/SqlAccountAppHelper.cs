@@ -139,23 +139,48 @@ public class SqlAccountAppHelper
 
         string appDir = releaseInfo["APP_DIR"].ToString()!.Replace("\\", "/");
         string appName = releaseInfo["APP_NAME"].ToString()!;
-        string appPort = ApplicationConstants.APPLICATION_PORT.ToString();
-        string ProcessName = ApplicationConstants.APPLICATION_NAME.ToString();
-        // PowerShell script as a string
+        string appPort = releaseInfo["APP_PORT"].ToString()!;
+        string processName = ApplicationConstants.APPLICATION_NAME.ToString();
+        string deploymentMethod = releaseInfo["DEPLOYMENT_METHOD"].ToString()!;
+
+        // WindowsStartup
         // stop process -> create backup -> download zip -> extract zip -> check & backup -> start process
+        // WindowsService
+        // stop service -> create backup -> download zip -> extract zip -> check & backup -> start service
+        // IIS
+        // stop site -> create backup -> download zip -> extract zip -> check & backup -> start site
         string powerShellScript = $@"
-        $ProcessName = '{ProcessName}'
-        $ProcessPath = '{Path.Combine(appDir, appName, ProcessName + ".exe")}'
+        $ProcessName = '{processName}'
+        $ProcessPath = '{Path.Combine(appDir, appName, processName + ".exe")}'
         $AppName = '{appName}'
         $DownloadUrl = '{downloadUrl}'
         $AppDir = '{appDir}'
         $PackageDir = '{Path.Combine(appDir, appName)}'
         $SwaggerUrl = 'http://localhost:{appPort}/swagger'
+        $DeploymentMethod = '{deploymentMethod}'
 
-        $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
-        if ($process) {{ 
-            Stop-Process -Name $processName -Force
-            Write-Host 'Process $processName has stopped.'
+        if($DeploymentMethod -eq 'WindowsStartup') {{
+            $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
+            if ($process) {{ 
+                Stop-Process -Name $ProcessName -Force
+                Write-Host 'Process $ProcessName has stopped.'
+            }}
+        }}
+
+        if($DeploymentMethod -eq 'WindowsService') {{
+            $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+            if ($service) {{
+                Stop-Service -Name $AppName -Force
+                Write-Host 'Service $AppName has stopped.'
+            }}
+        }}
+
+        if($DeploymentMethod -eq 'IIS') {{
+            $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+            if ($site) {{
+                Stop-WebSite -Name $AppName -Force
+                Write-Host 'Site $AppName has stopped.'
+            }}
         }}
 
         $BackupDir = Join-Path -Path $AppDir -ChildPath 'backup'
@@ -171,8 +196,23 @@ public class SqlAccountAppHelper
         Expand-Archive -Path $DownloadPath -DestinationPath $PackageDir -Force
         Remove-Item -Path $DownloadPath -Force
 
-        Start-Process $ProcessPath
-        Write-Host 'Process $processName has started.'
+        if($DeploymentMethod -eq 'WindowsStartup') {{
+            Start-Process $ProcessPath
+        }}
+
+        if($DeploymentMethod -eq 'WindowsService') {{
+            $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+            if ($service) {{
+                Start-Service -Name $AppName
+            }}
+        }}
+
+        if($DeploymentMethod -eq 'IIS') {{
+            $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+            if ($site) {{
+                Start-WebSite -Name $AppName
+            }}
+        }}
 
         Start-Sleep -Seconds 10
         try {{
@@ -186,9 +226,28 @@ public class SqlAccountAppHelper
         }} catch {{
             Write-Host 'Check failed. Reverting to backup...'
             
-            $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
-            if ($process) {{ 
-                Stop-Process -Name $processName -Force
+            if($DeploymentMethod -eq 'WindowsStartup') {{
+                $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
+                if ($process) {{ 
+                    Stop-Process -Name $ProcessName -Force
+                    Write-Host 'Process $ProcessName has stopped.'
+                }}
+            }}
+
+            if($DeploymentMethod -eq 'WindowsService') {{
+                $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+                if ($service) {{
+                    Stop-Service -Name $AppName -Force
+                    Write-Host 'Service $AppName has stopped.'
+                }}
+            }}
+
+            if($DeploymentMethod -eq 'IIS') {{
+                $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+                if ($site) {{
+                    Stop-WebSite -Name $AppName -Force
+                    Write-Host 'Site $AppName has stopped.'
+                }}
             }}
 
             $BackupPackagePath = Join-Path -Path $BackupDir -ChildPath $AppName
@@ -197,7 +256,23 @@ public class SqlAccountAppHelper
 
             Remove-Item -Path $BackupDir -Recurse -Force
             
-            Start-Process $ProcessPath
+            if($DeploymentMethod -eq 'WindowsStartup') {{
+                Start-Process $ProcessPath
+            }}
+
+            if($DeploymentMethod -eq 'WindowsService') {{
+                $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+                if ($service) {{
+                    Start-Service -Name $AppName
+                }}
+            }}
+
+            if($DeploymentMethod -eq 'IIS') {{
+                $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+                if ($site) {{
+                    Start-WebSite -Name $AppName
+                }}
+            }}
 
             Write-Host 'Revert complete. Application is running on the previous version.'
         }}
