@@ -1,7 +1,7 @@
 # Feb 17, 2025
 ## Update API POST app/update
 ### Overview
-Implement update for windows service and IIS deployment method
+Improve windows service and IIS deployment method by get rid of hardcoding service PORT and deployment method
 ### Files changed
 - Edit `src/SqlAccountRestAPI/Helpers/SqlAccountAppHelper.cs`
 # Feb 14, 2025
