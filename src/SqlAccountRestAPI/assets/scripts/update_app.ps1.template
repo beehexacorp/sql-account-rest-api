@@ -1,0 +1,142 @@
+$AppName = '{{ app_name }}'
+$AppDir = '{{ app_dir }}'
+$AppPort = '{{ app_port }}'
+$DeploymentMethod = '{{ deployment_method }}'
+$DownloadUrl = '{{ download_url }}'
+$PackageDir = '{{ package_dir }}'
+$ProcessName = '{{ process_name }}'
+$ProcessPath = '{{ process_path }}'
+$AppPoolName = '{{ app_pool_name }}'
+
+$SwaggerUrl = 'http://localhost:' + $AppPort + '/swagger'
+
+if($DeploymentMethod -eq 'WindowsStartup') {
+    $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
+    if ($process) { 
+        Stop-Process -Name $ProcessName -Force
+    }
+}
+
+if($DeploymentMethod -eq 'WindowsService') {
+    $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+    if ($service) {
+        Stop-Service -Name $AppName -Force
+    }
+}
+
+if($DeploymentMethod -eq 'IIS') {
+    $appPool = Get-WebAppPoolState -Name $AppPoolName -ErrorAction SilentlyContinue
+    if ($appPool) {
+        Stop-WebAppPool -Name $AppPoolName
+    }
+
+    $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+    if ($site) {
+        Stop-WebSite -Name $AppName
+    }
+    Start-Sleep -Seconds 10
+}
+
+Write-Host "$AppName has stop" 
+
+$BackupDir = Join-Path -Path $AppDir -ChildPath 'backup'
+if (Test-Path $BackupDir) {
+    Remove-Item -Path $BackupDir -Recurse -Force
+}
+New-Item -Path $BackupDir -ItemType Directory
+Move-Item -Path $PackageDir -Destination $BackupDir -Force
+
+$DownloadPath = Join-Path -Path $AppDir -ChildPath 'downloaded.zip'
+Invoke-WebRequest -Uri $DownloadUrl -OutFile $DownloadPath
+
+Expand-Archive -Path $DownloadPath -DestinationPath $PackageDir -Force
+Remove-Item -Path $DownloadPath -Force
+
+if($DeploymentMethod -eq 'WindowsStartup') {
+    Start-Process $ProcessPath
+}
+
+if($DeploymentMethod -eq 'WindowsService') {
+    $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+    if ($service) {
+        Start-Service -Name $AppName
+    }
+}
+
+if($DeploymentMethod -eq 'IIS') {
+    $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+    $appPool = Get-WebAppPoolState -Name $AppPoolName -ErrorAction SilentlyContinue
+    
+    Start-WebAppPool -Name $AppPoolName
+    Start-WebSite -Name $AppName
+}
+
+Write-Host "$AppName has started."
+
+Start-Sleep -Seconds 10
+try {
+    $response = Invoke-WebRequest -Uri $SwaggerUrl -UseBasicParsing -TimeoutSec 5
+    if ($response.StatusCode -eq 200) {
+        Write-Host 'Check passed. Update successful.'
+        Remove-Item -Path $BackupDir -Recurse -Force
+    } else {
+        throw 'Unexpected response status.'
+    }
+} catch {
+    Write-Host 'Check failed. Reverting to backup...'
+    
+    if($DeploymentMethod -eq 'WindowsStartup') {
+        $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue
+        if ($process) { 
+            Stop-Process -Name $ProcessName -Force
+        }
+    }
+
+    if($DeploymentMethod -eq 'WindowsService') {
+        $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+        if ($service) {
+            Stop-Service -Name $AppName -Force
+        }
+    }
+
+    if($DeploymentMethod -eq 'IIS') {
+        $appPool = Get-WebAppPoolState -Name $AppPoolName -ErrorAction SilentlyContinue
+        if ($appPool) {
+            Stop-WebAppPool -Name $AppPoolName
+        }
+
+        $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+        if ($site) {
+            Stop-WebSite -Name $AppName
+        }
+    }
+
+    Write-Host "$AppName has stopped."
+
+    $BackupPackagePath = Join-Path -Path $BackupDir -ChildPath $AppName
+    Remove-Item -Path $PackageDir -Recurse -Force
+    Move-Item -Path $BackupPackagePath -Destination $AppDir -Force
+
+    Remove-Item -Path $BackupDir -Recurse -Force
+    
+    if($DeploymentMethod -eq 'WindowsStartup') {
+        Start-Process $ProcessPath
+    }
+
+    if($DeploymentMethod -eq 'WindowsService') {
+        $service = Get-Service -Name $AppName -ErrorAction SilentlyContinue
+        if ($service) {
+            Start-Service -Name $AppName
+        }
+    }
+
+    if($DeploymentMethod -eq 'IIS') {
+        $site = Get-WebSite -Name $AppName -ErrorAction SilentlyContinue
+        $appPool = Get-WebAppPoolState -Name $AppPoolName -ErrorAction SilentlyContinue
+
+        Start-WebAppPool -Name $AppPoolName
+        Start-WebSite -Name $AppName
+    }
+
+    Write-Host 'Revert complete. Application is running on the previous version.'
+}
