@@ -1,3 +1,15 @@
+# Feb 23, 2025
+## Fix API POST app/update
+### Overview
+Add time sleep in update process for IIS deployment method to stop AppPool completely
+### Files changed
+- Edit `src/SqlAccountRestAPI/Helpers/SqlAccountAppHelper.cs`
+## Separate the update process into a separate file
+### Overview
+Clean code
+### Files changed
+- Add `src/SqlAccountRestAPI/assets/scripts/update_app.ps1.template`
+- Edit `src/SqlAccountRestAPI/SqlAccontRestAPI.csproj`
 # Feb 17, 2025
 ## Update API POST app/update
 ### Overview
