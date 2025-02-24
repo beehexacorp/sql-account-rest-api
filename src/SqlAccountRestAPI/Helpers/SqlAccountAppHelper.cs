@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.IO.Compression;
+using Scriban;
 
 namespace SqlAccountRestAPI.Helpers;
 
@@ -139,81 +140,48 @@ public class SqlAccountAppHelper
 
         string appDir = releaseInfo["APP_DIR"].ToString()!.Replace("\\", "/");
         string appName = releaseInfo["APP_NAME"].ToString()!;
-        string appPort = ApplicationConstants.APPLICATION_PORT.ToString();
-        string ProcessName = ApplicationConstants.APPLICATION_NAME.ToString();
-        // PowerShell script as a string
-        // stop process -> create backup -> download zip -> extract zip -> check & backup -> start process
-        string powerShellScript = $@"
-        $ProcessName = '{ProcessName}'
-        $ProcessPath = '{Path.Combine(appDir, appName, ProcessName + ".exe")}'
-        $AppName = '{appName}'
-        $DownloadUrl = '{downloadUrl}'
-        $AppDir = '{appDir}'
-        $PackageDir = '{Path.Combine(appDir, appName)}'
-        $SwaggerUrl = 'http://localhost:{appPort}/swagger'
+        string appPort = releaseInfo["PORT"].ToString()!;
+        string appPoolName = releaseInfo["APP_POOL_NAME"].ToString()!;
+        string deploymentMethod = releaseInfo["DEPLOYMENT_METHOD"].ToString()!;
+        string packageDir = Path.Combine(appDir, appName);
+        string processName = ApplicationConstants.APPLICATION_NAME.ToString();
+        string processPath = Path.Combine(appDir, appName, processName + ".exe");
 
-        $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
-        if ($process) {{ 
-            Stop-Process -Name $processName -Force
-            Write-Host 'Process $processName has stopped.'
-        }}
+        var templatePath = Path.Combine(AppContext.BaseDirectory, "assets/scripts/update_app.ps1.template");
+        
+        var templateContent = await File.ReadAllTextAsync(templatePath);
+        var template = Template.Parse(templateContent);
 
-        $BackupDir = Join-Path -Path $AppDir -ChildPath 'backup'
-        if (Test-Path $BackupDir) {{
-            Remove-Item -Path $BackupDir -Recurse -Force
-        }}
-        New-Item -Path $BackupDir -ItemType Directory
-        Move-Item -Path $PackageDir -Destination $BackupDir
+         var scriptContent = template.Render(new
+        {
+            app_dir = appDir,
+            app_name = appName,
+            app_port = appPort,
+            app_pool_name = appPoolName,
+            deployment_method = deploymentMethod,
+            download_url = downloadUrl,
+            package_dir = packageDir,
+            process_name = processName,
+            process_path = processPath
+        });
 
-        $DownloadPath = Join-Path -Path $AppDir -ChildPath 'downloaded.zip'
-        Invoke-WebRequest -Uri $DownloadUrl -OutFile $DownloadPath
-
-        Expand-Archive -Path $DownloadPath -DestinationPath $PackageDir -Force
-        Remove-Item -Path $DownloadPath -Force
-
-        Start-Process $ProcessPath
-        Write-Host 'Process $processName has started.'
-
-        Start-Sleep -Seconds 10
-        try {{
-            $response = Invoke-WebRequest -Uri $SwaggerUrl -UseBasicParsing -TimeoutSec 5
-            if ($response.StatusCode -eq 200) {{
-                Write-Host 'Check passed. Update successful.'
-                Remove-Item -Path $BackupDir -Recurse -Force
-            }} else {{
-                throw 'Unexpected response status.'
-            }}
-        }} catch {{
-            Write-Host 'Check failed. Reverting to backup...'
-            
-            $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
-            if ($process) {{ 
-                Stop-Process -Name $processName -Force
-            }}
-
-            $BackupPackagePath = Join-Path -Path $BackupDir -ChildPath $AppName
-            Remove-Item -Path $PackageDir -Recurse -Force
-            Move-Item -Path $BackupPackagePath -Destination $AppDir
-
-            Remove-Item -Path $BackupDir -Recurse -Force
-            
-            Start-Process $ProcessPath
-
-            Write-Host 'Revert complete. Application is running on the previous version.'
-        }}
-    ";
 
         // Start PowerShell process
         var processInfo = new System.Diagnostics.ProcessStartInfo
         {
             FileName = "powershell.exe",
-            Arguments = $"-NoExit -NoProfile -ExecutionPolicy Bypass -Command \"{powerShellScript}\"",
+            Arguments = deploymentMethod != "WindowsStartup" 
+                ? $"-NoProfile -ExecutionPolicy Bypass -Command \"{scriptContent}\""
+                : $"-NoExit -NoProfile -ExecutionPolicy Bypass -Command \"{scriptContent}\"",
             Verb = "runas",
             UseShellExecute = true,
         };
 
         System.Diagnostics.Process.Start(processInfo);
-
+        var response = "Update process starated. Service will restart soon.";
+        if (deploymentMethod == "IIS") {
+            response = "Update process starated. IIS will restart in 10 seconds. Please close every swagger window.";
+        }
         return new Dictionary<string, object>
         {
             { "Status", "Update process started. Service will restart soon." },
