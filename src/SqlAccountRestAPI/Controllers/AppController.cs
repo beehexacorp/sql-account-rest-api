@@ -4,7 +4,7 @@ using SqlAccountRestAPI.Core;
 using SqlAccountRestAPI.Helpers;
 
 namespace SqlAccountRestAPI.Controllers;
-[Route("api/[controller]")]
+[Route("api/app")]
 [ApiController]
 public partial class AppController : ControllerBase
 {
@@ -44,16 +44,16 @@ public partial class AppController : ControllerBase
     {
         return Ok(_app.GetModules());
     }
-    [HttpGet("objects")]
+    [HttpGet("biz-objects")]
     public IActionResult GetBizObjects()
     {
         return Ok(_app.GetBizObjects());
     }
 
-    [HttpGet("objects/{name}")]
-    public IActionResult GetBizObjectInfo(string name)
+    [HttpGet("biz-objects/{bizObjectName}")]
+    public IActionResult GetBizObjectInfo(string bizObjectName)
     {
-        return Ok(_app.GetBizObjectInfo(name));
+        return Ok(_app.GetBizObjectInfo(bizObjectName));
     }
 
     [HttpPost("update")]

@@ -21,6 +21,7 @@ public class SqlAccountCustomerHelper
     }
 
     public IDictionary<string, object> AddPayment(
+        string bankCharge,
         string documentNo,
         string paymentMethod,
         string project)
@@ -45,6 +46,7 @@ public class SqlAccountCustomerHelper
             mainDataset.FindField("LOCALDOCAMT").value = customerInvoice["DOCAMT"];
             mainDataset.FindField("PROJECT").value = project;
             mainDataset.FindField("PAYMENTPROJECT").value = project;
+            mainDataset.FindField("BANKCHARGE").value = bankCharge;
             mainDataset.Post();
 
             var knockOfCds = paymentBizObject.FindDataset("cdsKnockOff");            
