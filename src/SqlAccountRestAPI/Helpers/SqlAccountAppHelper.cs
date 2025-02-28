@@ -184,7 +184,7 @@ public class SqlAccountAppHelper
         }
         return new Dictionary<string, object>
         {
-            { "Status", "Update process started. Service will restart soon." },
+            { "Status", response },
         };
     }
     public string GetVersion()
