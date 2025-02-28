@@ -136,6 +136,11 @@ public class SqlAccountBizObjectHelper
         cdsData = cdsData ?? new List<IDictionary<string, object?>>();
         foreach (var dataItem in cdsData)
         {
+
+            if (datasetName == "cdsKnockOff") 
+                if (!lCdsDataSet.Locate("DocType;DocNo", new object[2] { dataItem["DOCTYPE"]!.ToString()!, dataItem["DOCNO"]!.ToString()!}, false, false))
+                    throw new Exception("KnockOff does not exist.");
+                
             if (defaultSubDataSetExistFlag)
             {
                 lCdsDataSet.Edit();
