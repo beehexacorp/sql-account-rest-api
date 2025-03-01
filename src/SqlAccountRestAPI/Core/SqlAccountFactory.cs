@@ -13,24 +13,17 @@ public class SqlAccountFactory : IDisposable
     {
         if (_app != null)
         {
-            try
-            {
-                var comChecker = SystemHelper.IsComObjectResponsive(() => _app.IsLogin, TimeSpan.FromSeconds(5));
-                if (!comChecker)
-                {
-                    SystemHelper.EndProcess("SQLACC");
-                    throw new Exception("COM object is not responsive.");
-                }
-                if(!_app.IsLogin){
-                    throw new Exception("App is not logged in.");
+            try {
+                var comResponsiveChecker = SystemHelper.IsComObjectResponsive(() => _app.IsLogin, TimeSpan.FromSeconds(5));
+                if (!comResponsiveChecker || !_app.IsLogin) {
+                    throw new Exception();
                 }
                 return _app;
             }
-            catch
-            {
-                // Release();
+            catch {
+                SystemHelper.EndProcess("SQLACC");
+                Thread.Sleep(5000);
                 _app = null;
-                throw;
             }
         }
 

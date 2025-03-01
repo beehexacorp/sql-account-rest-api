@@ -1,3 +1,16 @@
+# Feb 28, 2025
+## Special handle for cdsKnockOff in API POST biz-objects/:{entityType}
+### Overview
+Handle cdsKnockOff with function Locate()
+### Files changed
+- Edit `src/SqlAccountRestAPI/Helpers/SqlAccountBizObjectHelper.cs` - Use function Locate for cdsKnockOff mapping
+- Edit `src/SqlAccountRestAPI/Helpers/SqlAccountAppHelper.cs` - Fix minimal misstake in response
+# Feb 27, 2025
+## Update API POST customers/payment
+### Overview
+Add field `BANKCHARGE`
+### Files changed
+- Edit `src/SqlAccountRestAPI/Helpers/SqlAccountCustomerHelper.cs`
 # Feb 23, 2025
 ## Fix API POST app/update
 ### Overview
