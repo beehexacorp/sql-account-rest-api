@@ -12,27 +12,28 @@ using SqlAccountRestAPI.ViewModels.Responses;
 
 namespace SqlAccountRestAPI.Controllers;
 
-[Route("api/sales-invoices")]
+[Route("api/customer-invoices")]
 [ApiController]
-public class SalesInvoiceController : ControllerBase
+public class CustomerInvoiceController : ControllerBase
 {
-    private readonly SqlAccountSalesInvoiceHelper _salesInvoiceHelper;
-    public SalesInvoiceController(SqlAccountSalesInvoiceHelper salesInvoiceHelper)
+    private readonly SqlAccountCustomerInvoiceHelper _customerInvoiceHelper;
+    public CustomerInvoiceController(SqlAccountCustomerInvoiceHelper customerInvoiceHelper)
     {
-        _salesInvoiceHelper = salesInvoiceHelper;
+        _customerInvoiceHelper = customerInvoiceHelper;
     }
+
     /// <summary>
-    /// Retrieves sales invoices by document number
+    /// Retrieves customer invoices by document number
     /// </summary>
     /// <remarks>
-    /// This API fetches sales invoices that match the provided document number.
+    /// This API fetches customer invoices that match the provided document number.
     /// </remarks>
     /// <param name="documentNumber">The document number to search.</param>
     /// <param name="limit">Maximum number of results to return (default: 100).</param>
     /// <param name="offset">Offset for pagination (default: 0).</param>
     /// <response code="200">Returns the details of the business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(SalesInvoiceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CustomerInvoiceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("docno/{documentNumber}")]
@@ -40,7 +41,7 @@ public class SalesInvoiceController : ControllerBase
     {
         try
         {
-            var result = _salesInvoiceHelper.GetByDocno(documentNumber, limit, offset);
+            var result = _customerInvoiceHelper.GetByDocno(documentNumber, limit, offset);
             return Ok(result);
         }
         catch (Exception ex)
@@ -54,17 +55,17 @@ public class SalesInvoiceController : ControllerBase
         }
     }
     /// <summary>
-    /// Retrieves sales invoices from a certain number of days ago
+    /// Retrieves customer invoices from a certain number of days ago
     /// </summary>
     /// <remarks>
-    /// Fetches sales invoices based on the number of days before the current date.
+    /// Fetches customer invoices based on the number of days before the current date.
     /// </remarks>
     /// <param name="days">The number of days ago to search.</param>
     /// <param name="limit">Maximum number of results to return (default: 100).</param>
     /// <param name="offset">Offset for pagination (default: 0).</param>
     /// <response code="200">Returns the details of the business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(SalesInvoiceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CustomerInvoiceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("days-ago/{days}")]
@@ -72,7 +73,7 @@ public class SalesInvoiceController : ControllerBase
     {
         try
         {
-            var result = _salesInvoiceHelper.GetFromDaysAgo(days, limit, offset);
+            var result = _customerInvoiceHelper.GetFromDaysAgo(days, limit, offset);
             return Ok(result);
         }
         catch (Exception ex)
@@ -86,17 +87,17 @@ public class SalesInvoiceController : ControllerBase
         }
     }
     /// <summary>
-    /// Retrieves sales invoices from a specific date
+    /// Retrieves customer invoices from a specific date
     /// </summary>
     /// <remarks>
-    /// Fetches sales invoices recorded from a given date onward.
+    /// Fetches customer invoices recorded from a given date onward.
     /// </remarks>
     /// <param name="date">The date in YYYY-MM-DD format.</param>
     /// <param name="limit">Maximum number of results to return (default: 100).</param>
     /// <param name="offset">Offset for pagination (default: 0).</param>
     /// <response code="200">Returns the details of the business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(SalesInvoiceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CustomerInvoiceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("from-date/{date}")]
@@ -104,7 +105,7 @@ public class SalesInvoiceController : ControllerBase
     {
         try
         {
-            var result = _salesInvoiceHelper.GetFromDate(date, limit, offset);
+            var result = _customerInvoiceHelper.GetFromDate(date, limit, offset);
             return Ok(result);
         }
         catch (Exception ex)
@@ -117,6 +118,5 @@ public class SalesInvoiceController : ControllerBase
             return BadRequest(errorResponse);
         }
     }
-
     
 }
