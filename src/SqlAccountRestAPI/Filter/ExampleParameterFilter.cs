@@ -58,60 +58,50 @@ public class ExampleParameterFilter : IParameterFilter
             else if (parameter.Name == "limit")
             {
                 parameter.Schema.Example = new OpenApiInteger(1);
-                parameter.Style = ParameterStyle.Form;
             }
             else if (parameter.Name == "offset")
             {
                 parameter.Schema.Example = new OpenApiInteger(0);
-                parameter.Style = ParameterStyle.Form;
 
             }
             else if (parameter.Name == "days")
             {
                 parameter.Schema.Example = new OpenApiInteger(1000);
-                parameter.Style = ParameterStyle.Simple;
 
             }
             else if (parameter.Name == "date")
             {
                 parameter.Schema.Example = new OpenApiString("2020-01-01");
-                parameter.Style = ParameterStyle.Simple;
 
             }
             else if (parameter.Name == "bizObjectName")
             {
                 parameter.Schema.Example = new OpenApiString("AR_CUSTOMER");
-                parameter.Style = ParameterStyle.Simple;
 
             }
             else if (parameter.Name == "email")
             {
                 parameter.Schema.Example = new OpenApiString("delta@ahome.com");
-                parameter.Style = ParameterStyle.Simple;
 
             }
             else if (parameter.Name == "entityType")
             {
                 parameter.Schema.Example = new OpenApiString("STOCK_ITEM");
-                parameter.Style = ParameterStyle.Simple;
 
             }
             else if (parameter.Name == "fieldKey")
             {
                 parameter.Schema.Example = new OpenApiString("CODE");
-                parameter.Style = ParameterStyle.Simple;
 
             }
             else if (parameter.Name == "fieldValue")
             {
                 parameter.Schema.Example = new OpenApiString("COVER");
-                parameter.Style = ParameterStyle.Simple;
 
             }
             else if (parameter.Name == "email")
             {
                 parameter.Schema.Example = new OpenApiString("delta@ahome.com");
-                parameter.Style = ParameterStyle.Simple;
 
             }
 

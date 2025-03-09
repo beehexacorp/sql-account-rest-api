@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SqlAccountRestAPI.Core;
 using SqlAccountRestAPI.Helpers;
-using SqlAccountRestAPI.ViewModels.Responses;
 
 namespace SqlAccountRestAPI.Controllers;
 
@@ -31,8 +30,6 @@ public class CustomerPaymentController : ControllerBase
     /// <param name="offset">Offset for pagination (default: 0).</param>
     /// <response code="200">Returns the details of the business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(CustomerPaymentResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("docno/{documentNumber}")]
     public IActionResult GetByDocno([FromRoute] string documentNumber = "", [FromQuery] int limit = 100, int offset = 0)
@@ -63,8 +60,6 @@ public class CustomerPaymentController : ControllerBase
     /// <param name="offset">Offset for pagination (default: 0).</param>
     /// <response code="200">Returns the details of the business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(CustomerPaymentResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("days-ago/{days}")]
     public IActionResult GetFromDaysAgo([FromRoute] int days = 0, [FromQuery] int limit = 100, int offset = 0)
@@ -95,8 +90,6 @@ public class CustomerPaymentController : ControllerBase
     /// <param name="offset">Offset for pagination (default: 0).</param>
     /// <response code="200">Returns the details of the business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(CustomerPaymentResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("from-date/{date}")]
     public IActionResult GetFromDate([FromRoute] string date = "", [FromQuery] int limit = 100, int offset = 0)

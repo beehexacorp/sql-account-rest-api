@@ -65,46 +65,46 @@ public class SqlAccountAppHelper
         return results;
     }
 
-    public IEnumerable<BizObjectInfo> GetBizObjects()
+    public IDictionary<string, object> GetBizObjects()
     {
         dynamic app = _factory.GetInstance();
-        var results = new List<BizObjectInfo>();
+        var results = new Dictionary<string,object>();
+        var bizObjects = new List<BizObjectInfo>();
         for (int i = 0; i < app.BizObjects.Count; i++)
         {
-            results.Add(new BizObjectInfo
+            bizObjects.Add(new BizObjectInfo
             {
                 Name = app.BizObjects.Items(i)
             });
         }
+        results["bizObjects"] = bizObjects;
         return results;
     }
 
     public object? GetBizObjectInfo(string name)
     {
-        /**
-        TODO: implement this function
-        {
-          "name": "...",
-          "description": "...",
-          "fields": Array<string>
-          "cds": ...
-        }
-        // alternative
-        {
-          "name": "...",
-          "datasets": [
-            {
-              "name": "...",
-              "fields": Array<string>
-            },
-            {
-              "name": "...",
-              "fields": Array<string>
-            },...
-          ]      
+        // TODO: implement this function
+        // {
+        //   "name": "...",
+        //   "description": "...",
+        //   "fields": Array<string>
+        //   "cds": ...
+        // }
+        // // alternative
+        // {
+        //   "name": "...",
+        //   "datasets": [
+        //     {
+        //       "name": "...",
+        //       "fields": Array<string>
+        //     },
+        //     {
+        //       "name": "...",
+        //       "fields": Array<string>
+        //     },...
+        //   ]      
         
-        }
-        */
+        // }
         var result = new Dictionary<string, object?>
         {
             { "name", name }
@@ -184,7 +184,7 @@ public class SqlAccountAppHelper
         }
         return new Dictionary<string, object>
         {
-            { "Status", response },
+            { "status", response },
         };
     }
     public string GetVersion()

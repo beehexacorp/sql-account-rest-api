@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using SqlAccountRestAPI.Core;
 using SqlAccountRestAPI.Helpers;
-using SqlAccountRestAPI.ViewModels.Responses;
 
 namespace SqlAccountRestAPI.Controllers;
 
@@ -29,8 +28,6 @@ public partial class AppController : ControllerBase
     /// </remarks>
     /// <response code="200">Returns application information</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(AppInfoResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Consumes("application/json")]
     [Produces("application/json")]
     [HttpPost("login")]
@@ -48,8 +45,6 @@ public partial class AppController : ControllerBase
     /// </remarks>
     /// <response code="200">Returns application information</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(AppInfoResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("info")]
     public async Task<IActionResult> Get()
@@ -65,8 +60,6 @@ public partial class AppController : ControllerBase
     /// </remarks>
     /// <response code="200">Returns application action names</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(AppActionsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("actions")]
     public IActionResult GetActions()
@@ -82,8 +75,6 @@ public partial class AppController : ControllerBase
     /// </remarks>
     /// <response code="200">Returns application module names</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(AppModulesResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("modules")]
     public IActionResult GetModules()
@@ -99,8 +90,6 @@ public partial class AppController : ControllerBase
     /// </remarks>
     /// <response code="200">Returns application business object names</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(AppBizObjectsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("biz-objects")]
     public IActionResult GetBizObjects()
@@ -117,8 +106,6 @@ public partial class AppController : ControllerBase
     /// </remarks>
     /// <response code="200">Returns application business object details</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(AppBizObjectInfoResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpGet("biz-objects/{bizObjectName}")]
     public IActionResult GetBizObjectInfo(string bizObjectName)
@@ -134,8 +121,6 @@ public partial class AppController : ControllerBase
     /// </remarks>
     /// <response code="200">Returns application update status</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(AppUpdateResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
     [HttpPost("update")]
     public async Task<IActionResult> Update()

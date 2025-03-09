@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SqlAccountRestAPI.Core;
 using SqlAccountRestAPI.Helpers;
-using SqlAccountRestAPI.ViewModels.Responses;
 
 namespace SqlAccountRestAPI.Controllers;
 
@@ -29,8 +28,6 @@ public partial class BizObjectController : ControllerBase
     /// </remarks>    
     /// <response code="200">Returns the queried business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(BizObjectQueryResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Consumes("application/json")]
     [Produces("application/json")]
     [HttpPost("query")]
@@ -50,8 +47,6 @@ public partial class BizObjectController : ControllerBase
     /// </remarks>    
     /// <response code="200">Returns the details of the newly added business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(BizObjectGeneralResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Consumes("application/json")]
     [Produces("application/json")]
     [HttpPost("{entityType}")]
@@ -74,8 +69,6 @@ public partial class BizObjectController : ControllerBase
     /// </remarks>    
     /// <response code="200">Returns the updated business object details</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(BizObjectGeneralResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Consumes("application/json")]
     [Produces("application/json")]
     [HttpPut("{entityType}/{fieldKey}/{fieldValue}")]
@@ -95,8 +88,6 @@ public partial class BizObjectController : ControllerBase
     /// </remarks>    
     /// <response code="200">Returns the details of the transferred business object</response>
     /// <response code="400">General error</response>
-    [ProducesResponseType(typeof(BizObjectGeneralResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [Consumes("application/json")]
     [Produces("application/json")]
     [HttpPost("transfer")]
