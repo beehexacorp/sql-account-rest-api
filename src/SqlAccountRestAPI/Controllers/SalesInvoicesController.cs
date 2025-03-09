@@ -20,7 +20,18 @@ public class SalesInvoiceController : ControllerBase
     {
         _salesInvoiceHelper = salesInvoiceHelper;
     }
-
+    /// <summary>
+    /// Retrieves sales invoices by document number
+    /// </summary>
+    /// <remarks>
+    /// This API fetches sales invoices that match the provided document number.
+    /// </remarks>
+    /// <param name="documentNumber">The document number to search.</param>
+    /// <param name="limit">Maximum number of results to return (default: 100).</param>
+    /// <param name="offset">Offset for pagination (default: 0).</param>
+    /// <response code="200">Returns the details of the business object</response>
+    /// <response code="400">General error</response>
+    [Produces("application/json")]
     [HttpGet("docno/{documentNumber}")]
     public IActionResult GetByDocno([FromRoute] string documentNumber = "", [FromQuery] int limit = 100, int offset = 0)
     {
@@ -39,6 +50,18 @@ public class SalesInvoiceController : ControllerBase
             return BadRequest(errorResponse);
         }
     }
+    /// <summary>
+    /// Retrieves sales invoices from a certain number of days ago
+    /// </summary>
+    /// <remarks>
+    /// Fetches sales invoices based on the number of days before the current date.
+    /// </remarks>
+    /// <param name="days">The number of days ago to search.</param>
+    /// <param name="limit">Maximum number of results to return (default: 100).</param>
+    /// <param name="offset">Offset for pagination (default: 0).</param>
+    /// <response code="200">Returns the details of the business object</response>
+    /// <response code="400">General error</response>
+    [Produces("application/json")]
     [HttpGet("days-ago/{days}")]
     public IActionResult GetFromDaysAgo([FromRoute] int days = 0, [FromQuery] int limit = 100, int offset = 0)
     {
@@ -57,6 +80,18 @@ public class SalesInvoiceController : ControllerBase
             return BadRequest(errorResponse);
         }
     }
+    /// <summary>
+    /// Retrieves sales invoices from a specific date
+    /// </summary>
+    /// <remarks>
+    /// Fetches sales invoices recorded from a given date onward.
+    /// </remarks>
+    /// <param name="date">The date in YYYY-MM-DD format.</param>
+    /// <param name="limit">Maximum number of results to return (default: 100).</param>
+    /// <param name="offset">Offset for pagination (default: 0).</param>
+    /// <response code="200">Returns the details of the business object</response>
+    /// <response code="400">General error</response>
+    [Produces("application/json")]
     [HttpGet("from-date/{date}")]
     public IActionResult GetFromDate([FromRoute] string date = "", [FromQuery] int limit = 100, int offset = 0)
     {

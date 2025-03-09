@@ -15,11 +15,9 @@ public class SqlAccountORM : IDisposable
 
     public virtual void Login(string username, string password)
     {
-        /** 
-        TODO: 
-        1. Store the User & Password in an encrypted file
-        2. Whenever an application is stopped and restarted, it must re-login using the cached Username & Password
-        */        
+        // TODO: 
+        // 1. Store the User & Password in an encrypted file
+        // 2. Whenever an application is stopped and restarted, it must re-login using the cached Username & Password    
         dynamic app = _factory.GetInstance(autoLogin: false);
         if (app.IsLogin == true)
         {
@@ -55,7 +53,7 @@ FETCH NEXT 1 ROWS ONLY").Fields;
         return FieldIterator(fields);
     }
 
-    public dynamic CreateDataset(string sql, IDictionary<string, object?>? @params = null)
+    public dynamic CreateDataset(string sql)
     {
         // TODO: use params
         dynamic app = _factory.GetInstance();
@@ -67,7 +65,7 @@ FETCH NEXT 1 ROWS ONLY").Fields;
         sql = $@"{sql}
 OFFSET 0 ROWS
 FETCH NEXT 1 ROWS ONLY";
-        var dataset = CreateDataset(sql, @params);
+        var dataset = CreateDataset(sql);
         try
         {
             dataset.First();
@@ -94,16 +92,16 @@ FETCH NEXT 1 ROWS ONLY";
         }
     }
 
-    public IEnumerable<IDictionary<string, object>> Query(string sql, IDictionary<string, object?>? @params = null, int offset = 0, int limit = 100)
+    public IEnumerable<IDictionary<string, object>> Query(string sql, int offset = 0, int limit = 100)
     {
         var results = new List<IDictionary<string, object>>();
-        foreach (var item in AsIterator(sql, @params, offset, limit))
+        foreach (var item in AsIterator(sql, offset, limit))
         {
             results.Add(item);
         }
         return results;
     }
-    public IEnumerable<IDictionary<string, object>> AsIterator(string sql, IDictionary<string, object?>? @params = null, int offset = 0, int limit = 100)
+    public IEnumerable<IDictionary<string, object>> AsIterator(string sql, int offset = 0, int limit = 100)
     {
         if(limit>0){
             sql = $@"{sql} 
@@ -111,7 +109,7 @@ OFFSET {offset} ROWS
 FETCH NEXT {limit} ROWS ONLY";
         }
         
-        var dataset = CreateDataset(sql, @params);
+        var dataset = CreateDataset(sql);
         try
         {
             dataset.First();
@@ -155,7 +153,7 @@ FETCH NEXT {limit} ROWS ONLY";
         int offset
     )
     {
-        var results = AsIterator(sql, null, offset, limit)
+        var results = AsIterator(sql, offset, limit)
             .GroupBy(x => x[groupBy].ToString()!)
             .Select(groupped =>
             {

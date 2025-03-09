@@ -1,0 +1,5939 @@
+openapi: 3.1.0
+info:
+  title: SQL Account Rest API
+  version: '1.0'
+  description: >
+    This is a comprehensive REST API for managing SQL accounts. 
+    It provides endpoints for user authentication, customer data management, 
+    sales transactions, and stock control. Use this API to integrate your applications 
+    with our SQL accounting system.
+servers:
+  - url: https://sqlaccountingapi.hexasync.dev
+tags:
+  - name: App
+  - name: BizObject
+  - name: Customer
+  - name: CustomerInvoice
+  - name: CustomerPayment
+  - name: History
+  - name: SalesInvoice
+  - name: SalesOrder
+  - name: StockAdjustment
+  - name: StockItem
+  - name: StockItemTemplate
+paths:
+  /api/app/login:
+    post:
+      tags:
+        - App
+      summary: Authenticates a user and retrieves their account info
+      description: This endpoint allows users to authenticate with their credentials. If authentication is successful, user information is returned.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Returns application information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInfoResponse'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/AppInfoGetResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/app/info:
+    get:
+      tags:
+        - App
+      summary: Retrieves application information
+      description: This API returns general information about the application.
+      responses:
+        '200':
+          description: Returns application information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInfoResponse'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/AppInfoGetResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/app/actions:
+    get:
+      tags:
+        - App
+      summary: Retrieves available user actions
+      description: This endpoint returns a list of actions that users can perform.
+      responses:
+        '200':
+          description: Returns application action names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppActionsResponse'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/app/modules:
+    get:
+      tags:
+        - App
+      summary: Retrieves available system modules
+      description: This API provides details about the available system modules.
+      responses:
+        '200':
+          description: Returns application module names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppModulesResponse'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/app/biz-objects:
+    get:
+      tags:
+        - App
+      summary: Retrieves business objects
+      description: This endpoint returns all available business objects in the system.
+      responses:
+        '200':
+          description: Returns application business object names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppBizObjectsResponse'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/BizObjectsGetResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/app/biz-objects/{bizObjectName}:
+    get:
+      tags:
+        - App
+      summary: Retrieves details of a specific business object
+      description: This API returns detailed information about a given business object.
+      parameters:
+        - name: bizObjectName
+          in: path
+          description: The name of the business object
+          required: true
+          style: simple
+          schema:
+            type: string
+            example: AR_CUSTOMER
+      responses:
+        '200':
+          description: Returns application business object details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppBizObjectInfoResponse'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/BizObjectInfoGetResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/app/update:
+    post:
+      tags:
+        - App
+      summary: Updates the application
+      description: This API triggers an update process for the application.
+      responses:
+        '200':
+          description: Returns application update status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppUpdateResponse'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/AppUpdateResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/biz-objects/query:
+    post:
+      tags:
+        - BizObject
+      summary: Executes a query on business objects
+      description: This endpoint allows querying business objects using a raw SQL statement with optional parameters.\r\nIt supports pagination via offset and limit.
+      requestBody:
+        description: Query request parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BizObjectQueryRequest'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/BizObjectQueryResponseExample'
+      responses:
+        '200':
+          description: Returns the queried business object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BizObjectQueryResponse'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/biz-objects/{entityType}:
+    post:
+      tags:
+        - BizObject
+      summary: Adds a new business object
+      description: This endpoint creates a new business object of the specified entity type.\r\nThe request body must contain valid business object data.
+      parameters:
+        - name: entityType
+          in: path
+          description: Type of the business object
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Business object data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BizObjectRequest'
+      responses:
+        '200':
+          description: Returns the details of the newly added business object
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                default_example:
+                  $ref: '#/components/examples/BizObjectPostResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/biz-objects/{entityType}/{fieldKey}/{fieldValue}:
+    put:
+      tags:
+        - BizObject
+      summary: Updates an existing business object
+      description: This endpoint updates a business object by matching the specified field key and value.\r\nThe request body should contain the updated data.
+      parameters:
+        - name: entityType
+          in: path
+          description: The type of business object
+          required: true
+          schema:
+            type: string
+        - name: fieldKey
+          in: path
+          description: Field key used to identify the object
+          required: true
+          schema:
+            type: string
+        - name: fieldValue
+          in: path
+          description: Field value corresponding to the key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated business object data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BizObjectUpdateRequest'
+      responses:
+        '200':
+          description: Returns the updated business object details
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                default_example:
+                  $ref: '#/components/examples/BizObjectUpdateResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/biz-objects/transfer:
+    post:
+      tags:
+        - BizObject
+      summary: Transfers a business object from one entity type to another
+      description: This endpoint allows transferring a business object from one entity type to another.\r\nIt requires the source entity type, target entity type, and document number for transfer.
+      requestBody:
+        description: Transfer details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BizObjectTransferRequest'
+      responses:
+        '200':
+          description: Returns the details of the transferred business object
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                default_example:
+                  $ref: '#/components/examples/BizObjectTransferResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customers/email/{email}:
+    get:
+      tags:
+        - Customer
+      summary: Retrieves customers by customer email
+      description: This API fetches customers that match the provided customer email.
+      parameters:
+        - name: email
+          in: path
+          description: The customer email to search.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: delta@ahome.com
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customers/code/{code}:
+    get:
+      tags:
+        - Customer
+      summary: Retrieves customers by customer code
+      description: This API fetches customers that match the provided customer code.\r\nIt supports pagination through `limit` and `offset` parameters.
+      parameters:
+        - name: code
+          in: path
+          description: The customer code to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+            example: 300-A0001
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customers/days-ago/{days}:
+    get:
+      tags:
+        - Customer
+      summary: Retrieves customers from a certain number of days ago
+      description: Fetches customers based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customers/from-date/{date}:
+    get:
+      tags:
+        - Customer
+      summary: Retrieves customers from a specific date
+      description: Fetches customers recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customer-invoices/docno/{documentNumber}:
+    get:
+      tags:
+        - CustomerInvoice
+      summary: Retrieves customer invoices by document number
+      description: This API fetches customer invoices that match the provided document number.
+      parameters:
+        - name: documentNumber
+          in: path
+          description: The document number to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+            example: IV-00001
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerInvoice'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerInvoiceInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customer-invoices/days-ago/{days}:
+    get:
+      tags:
+        - CustomerInvoice
+      summary: Retrieves customer invoices from a certain number of days ago
+      description: Fetches customer invoices based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerInvoice'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerInvoiceInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customer-invoices/from-date/{date}:
+    get:
+      tags:
+        - CustomerInvoice
+      summary: Retrieves customer invoices from a specific date
+      description: Fetches customer invoices recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerInvoice'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerInvoiceInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customer-payments/docno/{documentNumber}:
+    get:
+      tags:
+        - CustomerPayment
+      summary: Retrieves customer payments by document number
+      description: This API fetches customer payments that match the provided document number.
+      parameters:
+        - name: documentNumber
+          in: path
+          description: The document number to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+            example: CS-00001
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerPayment'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerPaymentInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customer-payments/days-ago/{days}:
+    get:
+      tags:
+        - CustomerPayment
+      summary: Retrieves customer payments from a certain number of days ago
+      description: Fetches customer payments based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerPayment'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerPaymentInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/customer-payments/from-date/{date}:
+    get:
+      tags:
+        - CustomerPayment
+      summary: Retrieves customer payments from a specific date
+      description: Fetches customer payments recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerPayment'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/CustomerPaymentInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/history/logs:
+    get:
+      tags:
+        - History
+      parameters:
+        - name: ts
+          in: query
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+  /api/history/log-detail:
+    get:
+      tags:
+        - History
+      parameters:
+        - name: fn
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/history/download:
+    get:
+      tags:
+        - History
+      parameters:
+        - name: fn
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/sales-invoices/docno/{documentNumber}:
+    get:
+      tags:
+        - SalesInvoice
+      summary: Retrieves sales invoices by document number
+      description: This API fetches sales invoices that match the provided document number.
+      parameters:
+        - name: documentNumber
+          in: path
+          description: The document number to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+            example: IV-00001
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalesInvoice'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/SalesInvoiceInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/sales-invoices/days-ago/{days}:
+    get:
+      tags:
+        - SalesInvoice
+      summary: Retrieves sales invoices from a certain number of days ago
+      description: Fetches sales invoices based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalesInvoice'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/SalesInvoiceInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/sales-invoices/from-date/{date}:
+    get:
+      tags:
+        - SalesInvoice
+      summary: Retrieves sales invoices from a specific date
+      description: Fetches sales invoices recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalesInvoice'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/SalesInvoiceInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/sales-orders/docno/{documentNumber}:
+    get:
+      tags:
+        - SalesOrder
+      summary: Retrieves sales orders by document number
+      description: This API fetches sales orders that match the provided document number.
+      parameters:
+        - name: documentNumber
+          in: path
+          description: The document number to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+            example: SO-00001
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalesOrder'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/SalesOrderInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/sales-orders/days-ago/{days}:
+    get:
+      tags:
+        - SalesOrder
+      summary: Retrieves sales orders from a certain number of days ago
+      description: Fetches sales orders based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalesOrder'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/SalesOrderInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/sales-orders/from-date/{date}:
+    get:
+      tags:
+        - SalesOrder
+      summary: Retrieves sales orders from a specific date
+      description: Fetches sales orders recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SalesOrder'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/SalesOrderInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-adjustments/docno/{documentNumber}:
+    get:
+      tags:
+        - StockAdjustment
+      summary: Retrieves stock adjustments by document number
+      description: This API fetches stock adjustments that match the provided document number.
+      parameters:
+        - name: documentNumber
+          in: path
+          description: The document number to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+            example: AJ-00001
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockAdjustment'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockAdjustmentInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-adjustments/days-ago/{days}:
+    get:
+      tags:
+        - StockAdjustment
+      summary: Retrieves stock adjustments from a certain number of days ago
+      description: Fetches stock adjustments based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockAdjustment'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockAdjustmentInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-adjustments/from-date/{date}:
+    get:
+      tags:
+        - StockAdjustment
+      summary: Retrieves stock adjustments from a specific date
+      description: Fetches stock adjustments recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockAdjustment'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockAdjustmentInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-items/code/{code}:
+    get:
+      tags:
+        - StockItem
+      summary: Retrieves stock items by code
+      description: This API fetches stock items that match the provided code.
+      parameters:
+        - name: code
+          in: path
+          description: The code to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+            example: SEMI BOM
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockItem'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockItemInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-items/days-ago/{days}:
+    get:
+      tags:
+        - StockItem
+      summary: Retrieves stock items from a certain number of days ago
+      description: Fetches stock items based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockItem'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockItemInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-items/from-date/{date}:
+    get:
+      tags:
+        - StockItem
+      summary: Retrieves stock items from a specific date
+      description: Fetches stock items recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockItem'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockItemInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-item-templates/code/{code}:
+    get:
+      tags:
+        - StockItemTemplate
+      summary: Retrieves stock item templates by code
+      description: This API fetches stock item templates that match the provided code.
+      parameters:
+        - name: code
+          in: path
+          description: The code to search.
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (example: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockItemTemplate'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockItemTemplateInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-item-templates/days-ago/{days}:
+    get:
+      tags:
+        - StockItemTemplate
+      summary: Retrieves stock item templates from a certain number of days ago
+      description: Fetches stock item templates based on the number of days before the current date.
+      parameters:
+        - name: days
+          in: path
+          description: The number of days ago to search.
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 1000
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockItemTemplate'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockItemTemplateInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/stock-item-templates/from-date/{date}:
+    get:
+      tags:
+        - StockItemTemplate
+      summary: Retrieves stock item templates from a specific date
+      description: Fetches stock item templates recorded from a given date onward.
+      parameters:
+        - name: date
+          in: path
+          description: The date in YYYY-MM-DD format.
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: ""
+            example: 2020-01-01
+        - name: limit
+          in: query
+          description: "Maximum number of results to return (default: 100)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            example: 1
+        - name: offset
+          in: query
+          description: "Offset for pagination (default: 0)."
+          style: form
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 0
+      responses:
+        '200':
+          description: Returns the details of the business object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockItemTemplate'
+              examples:
+                default_example:
+                  $ref: '#/components/examples/StockItemTemplateInfoResponseExample'
+        '400':
+          description: General error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    AppActionsResponse:
+      type: object
+      properties:
+        actionNames:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    AppBizObjectInfoResponse:
+      type: object
+      properties:
+        name:
+          oneOf:
+            - type: number
+            - type: string
+          example: AR_PM
+        datasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/BizObjectInfoDataset'
+      additionalProperties: false
+    AppBizObjectsResponse:
+      type: object
+      properties:
+        bizObjects:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+      additionalProperties: false
+    AppInfoResponse:
+      type: object
+      properties:
+        sqlAccountAppInfo:
+          $ref: '#/components/schemas/SqlAccountAppInfo'
+        releaseInfo:
+          $ref: '#/components/schemas/ReleaseInfo'
+      additionalProperties: false
+    AppModulesResponse:
+      type: object
+      properties:
+        moduleNames:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    AppUpdateResponse:
+      type: object
+      properties:
+        status:
+          oneOf:
+            - type: number
+            - type: string
+          example: Update process starated. IIS will restart in 10 seconds. Please close every swagger window.
+      additionalProperties: false
+    BizObjectData:
+      type: object
+      properties:
+        fields:
+          type: object
+          additionalProperties: {}
+      additionalProperties: false
+    BizObjectGeneralResponse:
+      type: object
+      properties:
+        fields:
+          type: object
+          additionalProperties: {}
+      additionalProperties: false
+    BizObjectInfoDataset:
+      type: object
+      properties:
+        name:
+          oneOf:
+            - type: number
+            - type: string
+          example: MainDataSet
+        fields:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    BizObjectQueryRequest:
+      type: object
+      properties:
+        sql:
+          oneOf:
+            - type: number
+            - type: string
+          example: SELECT * FROM AR_CUSTOMER
+        offset:
+          oneOf:
+            - type: number
+            - type: string
+          example: 0
+        limit:
+          oneOf:
+            - type: number
+            - type: string
+          example: 1
+      additionalProperties: false
+    BizObjectQueryResponse:
+      type: object
+      properties:
+        bizData:
+          type: array
+          items:
+            $ref: '#/components/schemas/BizObjectData'
+      additionalProperties: false
+    BizObjectRequest:
+      type: object
+      properties:
+        data:
+          type: object
+          additionalProperties: {}
+      additionalProperties: false
+    BizObjectTransferRequest:
+      type: object
+      properties:
+        fromEntityType:
+          oneOf:
+            - type: number
+            - type: string
+          example: SL_SO
+        toEntityType:
+          oneOf:
+            - type: number
+            - type: string
+          example: SL_IV
+        docNo:
+          oneOf:
+            - type: number
+            - type: string
+          example: SO-00001
+      additionalProperties: false
+    BizObjectUpdateRequest:
+      type: object
+      properties:
+        mainKey:
+          oneOf:
+            - type: number
+            - type: string
+          example: DOCKEY
+        data:
+          type: object
+          additionalProperties: {}
+      additionalProperties: false
+    cdsBranch:
+      additionalProperties: false
+      properties:
+        ADDRESS_1:
+          example: Lot 98, Jalan Mentari Kuah
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS2:
+          example: 50480 KL
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS4:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        ATTENTION:
+          example: Mr. Delta
+          oneOf:
+          - type: number
+          - type: string
+        BRANCHNAME:
+          example: BILLING
+          oneOf:
+          - type: number
+          - type: string
+        BRANCHTYPE:
+          example: B
+          oneOf:
+          - type: number
+          - type: string
+        CITY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CODE_1:
+          example: 300-A0001
+          oneOf:
+          - type: number
+          - type: string
+        COUNTRY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DTLKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        EMAIL:
+          example: delta@ahome.com
+          oneOf:
+          - type: number
+          - type: string
+        FAX_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        FAX2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        GEOLAT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        GEOLONG:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        MOBILE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PHONE_1:
+          example: 04-976 5235
+          oneOf:
+          - type: number
+          - type: string
+        PHONE2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        POSTCODE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        STATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    Customer:
+      additionalProperties: false
+      properties:
+        ADDPDCTOCRLIMIT:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        AGENT:
+          example: Yuki
+          oneOf:
+          - type: number
+          - type: string
+        AGINGON:
+          example: I
+          oneOf:
+          - type: number
+          - type: string
+        ALLOWEXCEEDCREDITLIMIT:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        AREA:
+          example: KL
+          oneOf:
+          - type: number
+          - type: string
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BIZNATURE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BRN:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BRN2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BUSINESSUNIT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        cdsBranch:
+          items:
+            $ref: '#/components/schemas/cdsBranch'
+          type: array
+        CODE:
+          example: 300-A0001
+          oneOf:
+          - type: number
+          - type: string
+        COMPANYCATEGORY:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        COMPANYNAME:
+          example: A HOME FURNISHING & SERVICE
+          oneOf:
+          - type: number
+          - type: string
+        COMPANYNAME2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CONTROLACCOUNT:
+          example: 300-000
+          oneOf:
+          - type: number
+          - type: string
+        CREATIONDATE:
+          example: 2023-02-25T00
+          oneOf:
+          - type: number
+          - type: string
+        CREDITLIMIT:
+          example: 30000
+          oneOf:
+          - type: number
+          - type: string
+        CREDITTERM:
+          example: 30 Days
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYCODE:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        GSTNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IDNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IDTYPE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_CLASSIFICATION:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        LASTMODIFIED:
+          example: 1723112184
+          format: int64
+          type: integer
+        NOTE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        OUTSTANDING:
+          example: 1455
+          oneOf:
+          - type: number
+          - type: string
+        OVERDUELIMIT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        PEPPOLID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PRICETAG:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SALESTAXNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SERVICETAXNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SIC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        STATEMENTTYPE:
+          example: O
+          oneOf:
+          - type: number
+          - type: string
+        STATUS:
+          example: A
+          oneOf:
+          - type: number
+          - type: string
+        SUBMISSIONTYPE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXAREA:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXEXEMPTNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXEXPDATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TIN:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TOURISMNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    CustomerInvoice:
+      additionalProperties: false
+      properties:
+        AGENT:
+          example: Yuki
+          oneOf:
+          - type: number
+          - type: string
+        AREA:
+          example: Selangor
+          oneOf:
+          - type: number
+          - type: string
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CANCELLED:
+          example: F
+          oneOf:
+          - type: number
+          - type: string
+        cdsDocDetail:
+          items:
+            $ref: '#/components/schemas/CustomerInvoiceDetail'
+          type: array
+        CODE:
+          example: 300-T0001
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYCODE:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYRATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION:
+          example: Sales
+          oneOf:
+          - type: number
+          - type: string
+        DOCAMT:
+          example: 800
+          oneOf:
+          - type: number
+          - type: string
+        DOCDATE:
+          example: 2024-06-11 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DOCNO:
+          example: IV-00001
+          oneOf:
+          - type: number
+          - type: string
+        DOCNOEX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DUEDATE:
+          example: 2024-08-10 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCTYPE:
+          example: IV
+          oneOf:
+          - type: number
+          - type: string
+        GLTRANSID:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        INVOICEAMT:
+          example: 800
+          oneOf:
+          - type: number
+          - type: string
+        JOURNAL:
+          example: SALES
+          oneOf:
+          - type: number
+          - type: string
+        LOCALDOCAMT:
+          example: 800
+          oneOf:
+          - type: number
+          - type: string
+        NOTE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PAYMENTAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        POSTDATE:
+          example: 2024-06-11 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        TAXDATE:
+          example: 2024-06-11 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        TAXEXEMPTNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TERMS:
+          example: 60 Days
+          oneOf:
+          - type: number
+          - type: string
+        UPDATECOUNT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    CustomerInvoiceDetail:
+      additionalProperties: false
+      properties:
+        ACCOUNT:
+          example: 500-500
+          oneOf:
+          - type: number
+          - type: string
+        AMOUNT:
+          example: 400
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION_1:
+          example: Ultra Soft Fluffy Rug Rectangle Carpet (Blue)
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY_1:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DTLKEY:
+          example: 3
+          oneOf:
+          - type: number
+          - type: string
+        FROMDTLKEY:
+          example: 3
+          oneOf:
+          - type: number
+          - type: string
+        LOCALAMOUNT:
+          example: 400
+          oneOf:
+          - type: number
+          - type: string
+        LOCALTAXAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT_1:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        SEQ:
+          example: 1000
+          oneOf:
+          - type: number
+          - type: string
+        TARIFF:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXABLEAMT:
+          example: 400
+          oneOf:
+          - type: number
+          - type: string
+        TAXAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXINCLUSIVE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXRATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    CustomerInvoiceResponse:
+      additionalProperties: false
+      properties:
+        CUSTOMERINVOICES:
+          items:
+            $ref: '#/components/schemas/CustomerInvoice'
+          type: array
+      type: object
+    CustomerPayment:
+      additionalProperties: false
+      properties:
+        AGENT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        AREA:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BANKACC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BANKCHARGE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        BANKCHARGEACCOUNT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BANKREFNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BANKSTATUS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BANKSTATUSDESC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BANKTRANSFERTYPE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        BOUNCEDDATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CANCELLED:
+          example: F
+          oneOf:
+          - type: number
+          - type: string
+        cdsKnockOff:
+          items:
+            $ref: '#/components/schemas/KnockOffDetail'
+          type: array
+        CHEQUENUMBER:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CODE:
+          example: 300-C0002
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYCODE:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYRATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION:
+          example: Payment For Account
+          oneOf:
+          - type: number
+          - type: string
+        DOCAMT:
+          example: 240
+          oneOf:
+          - type: number
+          - type: string
+        DOCDATE:
+          example: 2024-06-15 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DOCNO:
+          example: CS-00001
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCKEY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCTYPE:
+          example: CS
+          oneOf:
+          - type: number
+          - type: string
+        GLTRANSID:
+          example: 19
+          oneOf:
+          - type: number
+          - type: string
+        JOURNAL:
+          example: CASH
+          oneOf:
+          - type: number
+          - type: string
+        LOCALDOCAMT:
+          example: 240
+          oneOf:
+          - type: number
+          - type: string
+        NONREFUNDABLE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        NOTE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PAYMENTMETHOD:
+          example: 320-000
+          oneOf:
+          - type: number
+          - type: string
+        PAYMENTPROJECT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        POSTDATE:
+          example: 2024-06-15 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        TAXDATE:
+          example: 2024-06-15 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        UNAPPLIEDAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        UPDATECOUNT:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    CustomerPaymentResponse:
+      additionalProperties: false
+      properties:
+        CUSTOMERPAYMENTS:
+          items:
+            $ref: '#/components/schemas/CustomerPayment'
+          type: array
+      type: object
+    CustomerResponse:
+      additionalProperties: false
+      properties:
+        CUSTOMERS:
+          items:
+            $ref: '#/components/schemas/Customer'
+          type: array
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      description: Error response model.
+      properties:
+        ERRORMESSAGE:
+          example: 'Login failed: Invalid user name or password'
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    ItemTemplateDetail:
+      additionalProperties: false
+      properties:
+        AMOUNT:
+          example: 700
+          oneOf:
+          - type: number
+          - type: string
+        CODE_1:
+          example: NewStockItem
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION_1:
+          example: Premium PU Leather Ultimate Gaming Chair (Black)
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION2_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION3_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DISC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DTLKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        ITEMCODE:
+          example: BOM-01/Black
+          oneOf:
+          - type: number
+          - type: string
+        LOCATION:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        NUMBER:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PRINTABLE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        QTY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        REMARK_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SEQ:
+          example: 1000
+          oneOf:
+          - type: number
+          - type: string
+        STYLEID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SUOMQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        UNITAMOUNT:
+          example: 700
+          oneOf:
+          - type: number
+          - type: string
+        UOM:
+          example: UNIT
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    KnockOffDetail:
+      additionalProperties: false
+      properties:
+        ACTUALLOCALKOAMT:
+          example: 240
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY_1:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCKEY_1:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCTYPE_1:
+          example: PM
+          oneOf:
+          - type: number
+          - type: string
+        GAINLOSS:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        GAINLOSSPOSTDATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        KOAMT:
+          example: 240
+          oneOf:
+          - type: number
+          - type: string
+        KOTAXDATE:
+          example: 2024-06-15 00:00:00
+          oneOf:
+          - type: number
+          - type: string
+        LOCALKOAMT:
+          example: 240
+          oneOf:
+          - type: number
+          - type: string
+        TODOCKEY:
+          example: 66
+          oneOf:
+          - type: number
+          - type: string
+        TODOCTYPE:
+          example: IV
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    LoginRequest:
+      required:
+        - password
+        - username
+      type: object
+      properties:
+        username:
+          minLength: 1
+          oneOf:
+            - type: number
+            - type: string
+          example: ADMIN
+        password:
+          minLength: 1
+          oneOf:
+            - type: number
+            - type: string
+          example: ADMIN
+      additionalProperties: false
+    SaleInvoiceDetail:
+      additionalProperties: false
+      properties:
+        ACCOUNT:
+          example: 500-500
+          oneOf:
+          - type: number
+          - type: string
+        AMOUNT:
+          example: 400
+          oneOf:
+          - type: number
+          - type: string
+        BATCH:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DELIVERYDATE:
+          example: 2024-06-11T00
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION_1:
+          example: Ultra Soft Fluffy Rug Rectangle Carpet (Blue)
+          oneOf:
+          - type: number
+          - type: string
+        DISC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY_1:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DTLKEY:
+          example: 3
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCKEY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCTYPE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        FROMDTLKEY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        INITIALPURCHASECOST:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_CLASSIFICATION:
+          example: 18
+          oneOf:
+          - type: number
+          - type: string
+        ITEMCODE:
+          example: RFC/Blue
+          oneOf:
+          - type: number
+          - type: string
+        LOCALAMOUNT:
+          example: 400
+          oneOf:
+          - type: number
+          - type: string
+        LOCALTAXAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        LOCATION:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        NUMBER:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PERMITNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PRINTABLE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT_1:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        QTY:
+          example: 10
+          oneOf:
+          - type: number
+          - type: string
+        RATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        REMARK_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SEQ:
+          example: 1000
+          oneOf:
+          - type: number
+          - type: string
+        SQTY:
+          example: 10
+          oneOf:
+          - type: number
+          - type: string
+        STYLEID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SUOMQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TARIFF:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXABLEAMT:
+          example: 400
+          oneOf:
+          - type: number
+          - type: string
+        TAXAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXEXEMPTIONREASON:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXINCLUSIVE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXRATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TRANSFERABLE_1:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        UNITPRICE:
+          example: 40
+          oneOf:
+          - type: number
+          - type: string
+        UOM:
+          example: UNIT
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    SalesInvoice:
+      additionalProperties: false
+      properties:
+        ADDRESS_1:
+          example: No 45, Jalan Batu Tiga Klang,
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS2:
+          example: 42000, Pelabuhan Klang, Selangor.
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS4:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        AGENT:
+          example: Yuki
+          oneOf:
+          - type: number
+          - type: string
+        AREA:
+          example: Selangor
+          oneOf:
+          - type: number
+          - type: string
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        ATTENTION:
+          example: Mr. Leonard
+          oneOf:
+          - type: number
+          - type: string
+        BRANCHNAME:
+          example: BILLING
+          oneOf:
+          - type: number
+          - type: string
+        CANCELLED:
+          example: F
+          oneOf:
+          - type: number
+          - type: string
+        CC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        cdsDocDetail:
+          items:
+            $ref: '#/components/schemas/SaleInvoiceDetail'
+          type: array
+        CITY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CODE:
+          example: 300-T0001
+          oneOf:
+          - type: number
+          - type: string
+        COMPANYNAME:
+          example: THAI TEA TRADING
+          oneOf:
+          - type: number
+          - type: string
+        COUNTRY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYCODE:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYRATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS_1:
+          example: No 45, Jalan Batu Tiga Klang,
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS2:
+          example: 42000, Pelabuhan Klang, Selangor.
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS4:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DATTENTION:
+          example: Mr. Leonard
+          oneOf:
+          - type: number
+          - type: string
+        DCITY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DCOUNTRY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DELIVERYTERM:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION:
+          example: Sales
+          oneOf:
+          - type: number
+          - type: string
+        DFAX_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DMOBILE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCAMT:
+          example: 800
+          oneOf:
+          - type: number
+          - type: string
+        DOCDATE:
+          example: 2024-06-11T00
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DOCNO:
+          example: IV-00001
+          oneOf:
+          - type: number
+          - type: string
+        DOCNOEX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF4:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DPHONE_1:
+          example: 03-3816 1027
+          oneOf:
+          - type: number
+          - type: string
+        DPOSTCODE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DSTATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        D_AMOUNT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        EIVDATETIME:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        FAX_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IDNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IDTYPE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        INCOTERMS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_INTERNALID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_LONGID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_STATUS:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_UUID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        LOCALDOCAMT:
+          example: 800
+          oneOf:
+          - type: number
+          - type: string
+        MOBILE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        NOTE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PHONE_1:
+          example: 03-3816 1027
+          oneOf:
+          - type: number
+          - type: string
+        POSTCODE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        POSTDATE:
+          example: 2024-06-11T00
+          oneOf:
+          - type: number
+          - type: string
+        PRINTCOUNT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        SALESTAXNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SERVICETAXNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SHIPPER:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        SIC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        STATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SUBMISSIONTYPE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXDATE:
+          example: 2024-06-11T00
+          oneOf:
+          - type: number
+          - type: string
+        TAXEXEMPTNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TERMS:
+          example: 60 Days
+          oneOf:
+          - type: number
+          - type: string
+        TIN:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TOURISMNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TRANSFERABLE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        UPDATECOUNT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        VALIDITY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    SalesInvoiceResponse:
+      additionalProperties: false
+      properties:
+        SALESINVOICES:
+          items:
+            $ref: '#/components/schemas/SalesInvoice'
+          type: array
+      type: object
+    SalesOrder:
+      additionalProperties: false
+      properties:
+        ADDRESS_1:
+          example: Lot 98, Jalan Mentari Kuah,
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS2:
+          example: 50480 KL
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        ADDRESS4:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        AGENT:
+          example: Yuki
+          oneOf:
+          - type: number
+          - type: string
+        AREA:
+          example: KL
+          oneOf:
+          - type: number
+          - type: string
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        ATTENTION:
+          example: Mr. Delta
+          oneOf:
+          - type: number
+          - type: string
+        BRANCHNAME:
+          example: BILLING
+          oneOf:
+          - type: number
+          - type: string
+        CANCELLED:
+          example: F
+          oneOf:
+          - type: number
+          - type: string
+        CC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        cdsDocDetail:
+          items:
+            $ref: '#/components/schemas/SalesOrderDetail'
+          type: array
+        CITY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CODE:
+          example: 300-A0001
+          oneOf:
+          - type: number
+          - type: string
+        COMPANYNAME:
+          example: A HOME FURNISHING & SERVICE
+          oneOf:
+          - type: number
+          - type: string
+        COUNTRY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYCODE:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        CURRENCYRATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS_1:
+          example: Lot 98, Jalan Mentari Kuah,
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS2:
+          example: 50480 KL
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DADDRESS4:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DATTENTION:
+          example: Mr. Delta
+          oneOf:
+          - type: number
+          - type: string
+        DCITY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DCOUNTRY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DELIVERYTERM:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION:
+          example: Sales Order
+          oneOf:
+          - type: number
+          - type: string
+        DFAX_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DMOBILE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCAMT:
+          example: 1370
+          oneOf:
+          - type: number
+          - type: string
+        DOCDATE:
+          example: 2024-06-28T00
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DOCNO:
+          example: SO-00001
+          oneOf:
+          - type: number
+          - type: string
+        DOCNOEX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCREF4:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DPHONE_1:
+          example: 04-976 5235
+          oneOf:
+          - type: number
+          - type: string
+        DPOSTCODE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DSTATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        D_AMOUNT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        D_BANKCHARGE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        D_BANKCHARGEACCOUNT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        D_CHEQUENUMBER:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        D_DOCNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        D_PAYMENTMETHOD:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        D_PAYMENTPROJECT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        FAX_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IDNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        IDTYPE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        INCOTERMS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        LOCALDOCAMT:
+          example: 1370
+          oneOf:
+          - type: number
+          - type: string
+        MOBILE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        NOTE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PHONE_1:
+          example: 04-976 5235
+          oneOf:
+          - type: number
+          - type: string
+        POSTCODE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        POSTDATE:
+          example: 2024-06-28T00
+          oneOf:
+          - type: number
+          - type: string
+        PRINTCOUNT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        SALESTAXNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SERVICETAXNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SHIPPER:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        SIC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        STATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SUBMISSIONTYPE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXDATE:
+          example: 2024-06-28T00
+          oneOf:
+          - type: number
+          - type: string
+        TAXEXEMPTNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TERMS:
+          example: 30 Days
+          oneOf:
+          - type: number
+          - type: string
+        TIN:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TOURISMNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TRANSFERABLE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        UPDATECOUNT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        VALIDITY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    SalesOrderDetail:
+      additionalProperties: false
+      properties:
+        AMOUNT:
+          example: 170
+          oneOf:
+          - type: number
+          - type: string
+        BATCH:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DELIVERYDATE:
+          example: 2024-06-28T00
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION_1:
+          example: Creative Curvy Modern Style Eames Chair (Black)
+          oneOf:
+          - type: number
+          - type: string
+        DISC:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY_1:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DTLKEY:
+          example: 3
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        FROMDOCTYPE:
+          example: QT
+          oneOf:
+          - type: number
+          - type: string
+        FROMDTLKEY:
+          example: 3
+          oneOf:
+          - type: number
+          - type: string
+        INITIALPURCHASECOST:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_CLASSIFICATION:
+          example: 18
+          oneOf:
+          - type: number
+          - type: string
+        ITEMCODE:
+          example: CCE/Black-Chair
+          oneOf:
+          - type: number
+          - type: string
+        LOCALAMOUNT:
+          example: 170
+          oneOf:
+          - type: number
+          - type: string
+        LOCALTAXAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        LOCATION:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        NUMBER:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        OFFSETQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        PERMITNO:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PRINTABLE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT_1:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        QTY:
+          example: 2
+          oneOf:
+          - type: number
+          - type: string
+        RATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        REMARK_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SEQ:
+          example: 1000
+          oneOf:
+          - type: number
+          - type: string
+        SQTY:
+          example: 2
+          oneOf:
+          - type: number
+          - type: string
+        STYLEID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SUOMQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TARIFF:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXAMT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXEXEMPTIONREASON:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TAXINCLUSIVE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        TAXRATE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TRANSFERABLE_1:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        UNITPRICE:
+          example: 85
+          oneOf:
+          - type: number
+          - type: string
+        UOM:
+          example: UNIT
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    SalesOrderResponse:
+      additionalProperties: false
+      properties:
+        SALESORDERS:
+          items:
+            $ref: '#/components/schemas/SalesOrder'
+          type: array
+      type: object
+    ReleaseInfo:
+      type: object
+      properties:
+        API_VERSION:
+          oneOf:
+            - type: number
+            - type: string
+          example: release-0.0.44
+        PORT:
+          oneOf:
+            - type: number
+            - type: string
+          example: 5001
+        APP_NAME:
+          oneOf:
+            - type: number
+            - type: string
+          example: SQLACC_API_IIS
+        APP_DIR:
+          oneOf:
+            - type: number
+            - type: string
+          example: C:/Users/Admin/Code/SQLAccountPackage
+        DEPLOYMENT_METHOD:
+          oneOf:
+            - type: number
+            - type: string
+          example: IIS
+        APP_POOL_NAME:
+          oneOf:
+            - type: number
+            - type: string
+          example: SQLACC_API_IISPool
+        LATEST_VERSION:
+          oneOf:
+            - type: number
+            - type: string
+          example: release-0.0.46
+      additionalProperties: false
+    SqlAccountAppInfo:
+      type: object
+      properties:
+        title:
+          oneOf:
+            - type: number
+            - type: string
+          example: SQL Account Education Edition - Testing Company [2025]
+        releaseDate:
+          oneOf:
+            - type: number
+            - type: string
+          example: 2024-08-19
+        buildNo:
+          oneOf:
+            - type: number
+            - type: string
+          example: 854
+        version:
+          oneOf:
+            - type: number
+            - type: string
+          example: 5.2024.994.854
+      additionalProperties: false
+    StockAdjustment:
+      additionalProperties: false
+      properties:
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        AUTHBY:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        CANCELLED:
+          example: F
+          oneOf:
+          - type: number
+          - type: string
+        cdsDocDetail:
+          items:
+            $ref: '#/components/schemas/StockAdjustmentDetail'
+          type: array
+        DESCRIPTION:
+          example: Stock Adjustment - Bedding Accessories
+          oneOf:
+          - type: number
+          - type: string
+        DOCAMT:
+          example: -1170
+          oneOf:
+          - type: number
+          - type: string
+        DOCDATE:
+          example: 2024-06-30T00
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DOCNO:
+          example: AJ-00001
+          oneOf:
+          - type: number
+          - type: string
+        NOTE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        POSTDATE:
+          example: 2024-06-30T00
+          oneOf:
+          - type: number
+          - type: string
+        PRINTCOUNT:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        REASON:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        UPDATECOUNT:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        WRITEOFF:
+          example: F
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    StockAdjustmentDetail:
+      additionalProperties: false
+      properties:
+        AMOUNT:
+          example: -129
+          oneOf:
+          - type: number
+          - type: string
+        BATCH:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BOOKQTY:
+          example: 30
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION_1:
+          example: Microfiber Soft Bolster with 100% cotton fabric
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY_1:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        DTLKEY:
+          example: 3
+          oneOf:
+          - type: number
+          - type: string
+        ITEMCODE:
+          example: MF-Bolster
+          oneOf:
+          - type: number
+          - type: string
+        LOCATION:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        NUMBER:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PHYSICALQTY:
+          example: 29
+          oneOf:
+          - type: number
+          - type: string
+        PRINTABLE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        PROJECT:
+          example: '----'
+          oneOf:
+          - type: number
+          - type: string
+        QTY:
+          example: -1
+          oneOf:
+          - type: number
+          - type: string
+        RATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        REMARK_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SEQ:
+          example: 1000
+          oneOf:
+          - type: number
+          - type: string
+        SQTY:
+          example: -1
+          oneOf:
+          - type: number
+          - type: string
+        STYLEID:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SUOMQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        UNITCOST:
+          example: 129
+          oneOf:
+          - type: number
+          - type: string
+        UOM:
+          example: UNIT
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    StockAdjustmentResponse:
+      additionalProperties: false
+      properties:
+        STOCKADJUSTMENTS:
+          items:
+            $ref: '#/components/schemas/StockAdjustment'
+          type: array
+      type: object
+    StockItem:
+      additionalProperties: false
+      properties:
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        BALSQTY:
+          example: -5
+          oneOf:
+          - type: number
+          - type: string
+        BALSUOMQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        BOM_ASMCOST:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        BOM_LEADTIME:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        cdsUOM:
+          items:
+            $ref: '#/components/schemas/UOM'
+          type: array
+        CODE:
+          example: SEMI BOM
+          oneOf:
+          - type: number
+          - type: string
+        COSTINGMETHOD:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        CREATIONDATE:
+          example: 2024-08-08T00
+          oneOf:
+          - type: number
+          - type: string
+        DEFUOM_PH:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DEFUOM_SL:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DEFUOM_ST:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION:
+          example: SEMI BOM
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DOCKEY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        IRBM_CLASSIFICATION:
+          example: 18
+          oneOf:
+          - type: number
+          - type: string
+        ISACTIVE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        ITEMTYPE:
+          example: B
+          oneOf:
+          - type: number
+          - type: string
+        LASTMODIFIED:
+          example: 1723112180
+          format: int64
+          type: integer
+        LEADTIME:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        MAXQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        MINQTY:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        NOTE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PHTAX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PICTURE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        PICTURECLASS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK_1:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REMARK2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        REORDERLEVEL:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        REORDERQTY:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        SCRIPTCODE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SERIALNUMBER:
+          example: F
+          oneOf:
+          - type: number
+          - type: string
+        SHELF:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SLTAX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        STOCKCONTROL:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        STOCKGROUP:
+          example: OTHERS
+          oneOf:
+          - type: number
+          - type: string
+        STOCKMATRIX:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        SUOM:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        TARIFF:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    StockItemResponse:
+      additionalProperties: false
+      properties:
+        STOCKITEMS:
+          items:
+            $ref: '#/components/schemas/StockItem'
+          type: array
+      type: object
+    StockItemTemplate:
+      additionalProperties: false
+      properties:
+        ATTACHMENTS:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        cdsItemTplDtl:
+          items:
+            $ref: '#/components/schemas/ItemTemplateDetail'
+          type: array
+        CODE:
+          example: NewStockItem
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION2:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        DESCRIPTION3:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        ISACTIVE:
+          example: T
+          oneOf:
+          - type: number
+          - type: string
+        LASTMODIFIED:
+          example: 1741233335
+          format: int64
+          type: integer
+        REFPRICE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+    StockItemTemplateResponse:
+      additionalProperties: false
+      properties:
+        STOCKITEMTEMPLATES:
+          items:
+            $ref: '#/components/schemas/StockItemTemplate'
+          type: array
+      type: object
+    UOM:
+      additionalProperties: false
+      properties:
+        CODE_1:
+          example: SEMI BOM
+          oneOf:
+          - type: number
+          - type: string
+        ISBASE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        MAXCOST:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        MAXPRICE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        MINCOST:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        MINPRICE:
+          example: ''
+          oneOf:
+          - type: number
+          - type: string
+        RATE:
+          example: 1
+          oneOf:
+          - type: number
+          - type: string
+        REFCOST:
+          example: 23
+          oneOf:
+          - type: number
+          - type: string
+        REFPRICE:
+          example: 0
+          oneOf:
+          - type: number
+          - type: string
+        UOM:
+          example: UNIT
+          oneOf:
+          - type: number
+          - type: string
+      type: object
+
+  examples:
+    AppInfoGetResponseExample:
+      value:
+        sqlAccountAppInfo:
+          title: SQL Account Education Edition - Testing Company [2025]
+          releaseDate: 2024-08-19
+          buildNo: 854
+          version: 5.2024.994.854
+        releaseInfo:
+          API_VERSION: release-0.0.46
+          PORT: 5001
+          APP_NAME: SQLACC_API_IIS
+          APP_DIR: C:/Users/Admin/Code/SQLAccountPackage
+          DEPLOYMENT_METHOD: IIS
+          APP_POOL_NAME: SQLACC_API_IISPool
+          LATEST_VERSION: release-0.0.46
+    BizObjectInfoGetResponseExample:
+      value:
+        name: AR_PM
+        datasets:
+        - name: MainDataSet
+          fields:
+          - DOCKEY
+          - DOCNO
+          - CODE
+          - DOCDATE
+          - POSTDATE
+          - TAXDATE
+          - PROJECT
+          - PAYMENTPROJECT
+          - DESCRIPTION
+          - AGENT
+          - AREA
+          - PAYMENTMETHOD
+          - JOURNAL
+          - CHEQUENUMBER
+          - CURRENCYCODE
+          - CURRENCYRATE
+          - DOCAMT
+          - LOCALDOCAMT
+          - BANKACC
+          - BANKCHARGE
+          - BANKCHARGEACCOUNT
+          - UNAPPLIEDAMT
+          - FROMDOCTYPE
+          - FROMDOCKEY
+          - CANCELLED
+          - NONREFUNDABLE
+          - BOUNCEDDATE
+          - UPDATECOUNT
+          - ATTACHMENTS
+          - NOTE
+          - sdsKnockOff
+          - CompanyCurrencyRate
+          - DOCREF1
+          - DOCREF2
+          - BANKTRANSFERTYPE
+          - BANKREFNO
+          - BANKSTATUS
+          - BANKSTATUSDESC
+          - DocNoSetKey
+          - NextDocNo
+          - CHANGED
+        - name: cdsKnockOff
+          fields:
+          - UNIQUEKEY
+          - DOCKEY
+          - KNOCKOFFDOCKEY
+          - REFDOCKEY
+          - DOCTYPE
+          - DOCDATE
+          - POSTDATE
+          - DOCNO
+          - AGENT
+          - AREA
+          - DOCAMT
+          - ORIGINALOUTSTANDING
+          - CURRENCYCODE
+          - CURRENCYRATE
+          - OUTSTANDING
+          - KOAMT
+          - ACTUALLOCALKOAMT
+          - LOCALKOAMT
+          - KOTAXDATE
+          - GAINLOSS
+          - GAINLOSSPOSTDATE
+          - LOCALOUTSTANDING
+          - KNOCKOFF
+          - DOCNOEX
+          - DESCRIPTION
+          - DUEDATE
+          - PROJECT
+          - UPDATECOUNT
+    BizObjectsGetResponseExample:
+      value:
+        bizObjects:
+          - name: AGENT
+          - name: AGENT
+          - name: AP_PI
+          - name: AP_PI
+          - name: AP_SC
+          - name: AP_SC
+          - name: AP_SD
+          - name: AP_SD
+          - name: AP_SF
+          - name: AP_SF
+          - name: AP_SI
+          - name: AP_SI
+          - name: AP_SIDTL_FORFEIT
+          - name: AP_SIDTL_FORFEIT
+          - name: AP_SIDTL_REFUND
+          - name: AP_SIDTL_REFUND
+          - name: AP_SP
+          - name: AP_SP
+          - name: AP_ST
+          - name: AP_ST
+          - name: AP_SUPPLIER
+          - name: AP_SUPPLIER
+          - name: AREA
+          - name: AREA
+          - name: AR_CF
+          - name: AR_CF
+          - name: AR_CN
+          - name: AR_CN
+          - name: AR_CT
+          - name: AR_CT
+          - name: AR_CUSTOMER
+          - name: AR_CUSTOMER
+          - name: AR_DN
+          - name: AR_DN
+          - name: AR_DP
+          - name: AR_DP
+          - name: AR_DPDTL_FORFEIT
+          - name: AR_DPDTL_FORFEIT
+          - name: AR_DPDTL_REFUND
+          - name: AR_DPDTL_REFUND
+          - name: AR_IV
+          - name: AR_IV
+          - name: AR_PM
+          - name: AR_PM
+          - name: COMPANYCATEGORY
+          - name: COMPANYCATEGORY
+          - name: CURRENCY
+          - name: CURRENCY
+          - name: DBREGISTRY
+          - name: DBREGISTRY
+          - name: EIV.OPF
+          - name: FA.DISPOSAL.OPF
+          - name: FA.GROUP.OPF
+          - name: FA.ITEM.OPF
+          - name: FORMMODE
+          - name: FORMMODE
+          - name: GL.OB.OPF
+          - name: GL_ACC
+          - name: GL_ACC
+          - name: GL_BA
+          - name: GL_BA
+          - name: GL_BD
+          - name: GL_BD
+          - name: GL_CB
+          - name: GL_CB
+          - name: GL_JE
+          - name: GL_JE
+          - name: GL_OR
+          - name: GL_OR
+          - name: GL_PV
+          - name: GL_PV
+          - name: GL_STOCK
+          - name: GL_STOCK
+          - name: GST.ADJUSTMENT.MY.OPF
+          - name: GST.DATE.OPF
+          - name: GST.GIFT.MY.OPF
+          - name: GST.NEXT.TAXPERIOD.OPF
+          - name: GST.PROCESS.OPF
+          - name: GST.TAXABLE.DEFAULT.OPF
+          - name: GST.TAXABLE.OPF
+          - name: JOURNAL
+          - name: JOURNAL
+          - name: MISC.SHIPPER.OPF
+          - name: MISC.TARIFF.OPF
+          - name: MISC.TAX.OPF
+          - name: MISC.WHTAX.OPF
+          - name: PD_JO
+          - name: PD_JO
+          - name: PH_CP
+          - name: PH_CP
+          - name: PH_EG
+          - name: PH_EG
+          - name: PH_GR
+          - name: PH_GR
+          - name: PH_PC
+          - name: PH_PC
+          - name: PH_PI
+          - name: PH_PI
+          - name: PH_PO
+          - name: PH_PO
+          - name: PH_PQ
+          - name: PH_PQ
+          - name: PH_SC
+          - name: PH_SC
+          - name: PH_SD
+          - name: PH_SD
+          - name: PMMETHOD
+          - name: PMMETHOD
+          - name: PROJECT
+          - name: PROJECT
+          - name: SALES.POINTS.OPF
+          - name: SCRIPTS
+          - name: SCRIPTS
+          - name: SL_CC
+          - name: SL_CC
+          - name: SL_CN
+          - name: SL_CN
+          - name: SL_CS
+          - name: SL_CS
+          - name: SL_DN
+          - name: SL_DN
+          - name: SL_DO
+          - name: SL_DO
+          - name: SL_ED
+          - name: SL_ED
+          - name: SL_IV
+          - name: SL_IV
+          - name: SL_QT
+          - name: SL_QT
+          - name: SL_SO
+          - name: SL_SO
+          - name: SST.TAXABLE.DEFAULT.OPF
+          - name: SST.TAXABLE.OPF
+          - name: ST.BATCH.OPF
+          - name: ST.CARD.FIFO.OPF
+          - name: ST.CARD.STD.OPF
+          - name: ST.CARD.WMA.OPF
+          - name: ST.TAKE.OPF
+          - name: STYLE
+          - name: STYLE
+          - name: ST_AJ
+          - name: ST_AJ
+          - name: ST_AS
+          - name: ST_AS
+          - name: ST_CATEGORY
+          - name: ST_CATEGORY
+          - name: ST_DS
+          - name: ST_DS
+          - name: ST_GROUP
+          - name: ST_GROUP
+          - name: ST_IS
+          - name: ST_IS
+          - name: ST_ITEM
+          - name: ST_ITEM
+          - name: ST_ITEM_MATRIX
+          - name: ST_ITEM_MATRIX
+          - name: ST_ITEM_TPL
+          - name: ST_ITEM_TPL
+          - name: ST_LOCATION
+          - name: ST_LOCATION
+          - name: ST_PRICETAG
+          - name: ST_PRICETAG
+          - name: ST_RC
+          - name: ST_RC
+          - name: ST_XF
+          - name: ST_XF
+          - name: SYSTEM.ACCESSRIGHT.GROUP.MATRIX.OPF
+          - name: SYSTEM.ACCESSRIGHT.USER.MATRIX.OPF
+          - name: SYSTEM.ACTIVATION.OPF
+          - name: SYSTEM.ALLOWDATE.OPF
+          - name: SYSTEM.BATCHSQL.OPF
+          - name: SYSTEM.BLOB.OPF
+          - name: SYSTEM.BROWSEVIEW.USER.MATRIX.OPF
+          - name: SYSTEM.BROWSEVIEW.USER.MULTI.OPF
+          - name: SYSTEM.DATAFORMAT.OPF
+          - name: SYSTEM.DIY.FIELD.OPF
+          - name: SYSTEM.DIY.FIELD.TEMPLATE.OPF
+          - name: SYSTEM.DIY.OBJECT.OPF
+          - name: SYSTEM.DIY.QUICK.DESIGN.OPF
+          - name: SYSTEM.DIY.READ.OPF
+          - name: SYSTEM.DIY.SCRIPT.OPF
+          - name: SYSTEM.DOCNO.NEXTNO.OPF
+          - name: SYSTEM.DOCNO.OPF
+          - name: SYSTEM.DOCNOBYRIGHT.OPF
+          - name: SYSTEM.DOCNORIGHT.USER.MULTI.OPF
+          - name: SYSTEM.DUMMY.DOCUMENT.OPF
+          - name: SYSTEM.FORMID.OPF
+          - name: SYSTEM.FORMMODE.GROUP.MATRIX.OPF
+          - name: SYSTEM.FORMMODE.GROUP.OPF
+          - name: SYSTEM.FORMMODE.GROUPDEFAULT.OPF
+          - name: SYSTEM.FORMMODE.USER.MATRIX.OPF
+          - name: SYSTEM.FORMMODE.USER.OPF
+          - name: SYSTEM.FORMUI.OPF
+          - name: SYSTEM.FORMUIRIGHT.GROUP.MATRIX.OPF
+          - name: SYSTEM.FORMUIRIGHT.USER.MATRIX.OPF
+          - name: SYSTEM.GRIDCLASS.OPF
+          - name: SYSTEM.GRIDLAYOUTRIGHT.USER.MATRIX.OPF
+          - name: SYSTEM.GRIDOBJECT.OPF
+          - name: SYSTEM.GROUP.RIGHT.OPF
+          - name: SYSTEM.GROUPDEFAULT.OPF
+          - name: SYSTEM.GROUPS.OPF
+          - name: SYSTEM.NAVIGATORRIGHT.GROUP.MATRIX.OPF
+          - name: SYSTEM.NAVIGATORRIGHT.USER.MATRIX.OPF
+          - name: SYSTEM.OBJECT.OPF
+          - name: SYSTEM.OPTION.OPF
+          - name: SYSTEM.PASSKEY.OPF
+          - name: SYSTEM.PROFILE.DCF.OPF
+          - name: SYSTEM.PROFILE.OPF
+          - name: SYSTEM.PROFILE.READONLY.OPF
+          - name: SYSTEM.REGISTRY.OPF
+          - name: SYSTEM.REPORT.META.OPF
+          - name: SYSTEM.REPORT.OPF
+          - name: SYSTEM.TOKEN.OPF
+          - name: SYSTEM.USER.OPF
+          - name: SYSTEM.USER.PASSWORD.OPF
+          - name: SYSTEM.USER.RIGHT.OPF
+          - name: SYSTEM.USERDEFAULT.DOCNO.OPF
+          - name: SYSTEM.USERDEFAULT.OPF
+          - name: SYSTEM.USERVIEW.MATRIX.OPF
+          - name: SYSTEM.USERVIEW.MULTI.OPF
+          - name: SYSTEM.VIEW.OPF
+          - name: SYSTEM.VIEWTEMPLATE.OPF
+          - name: TERMS
+          - name: TERMS
+    AppUpdateResponseExample:
+      value:
+        status: Update process starated. Service will restart soon.
+    BizObjectPostResponseExample:
+      value:
+        CODE: 300-T0002
+        CONTROLACCOUNT: 300-000
+        COMPANYNAME: TestCompany
+        COMPANYNAME2: {}
+        COMPANYCATEGORY: ----
+        AREA: ----
+        AGENT: ----
+        BIZNATURE: {}
+        CREDITTERM: 30 Days
+        CREDITLIMIT: 30000
+        OVERDUELIMIT: 0
+        STATEMENTTYPE: O
+        CURRENCYCODE: ----
+        OUTSTANDING: 0
+        ALLOWEXCEEDCREDITLIMIT: T
+        ADDPDCTOCRLIMIT: T
+        AGINGON: I
+        PRICETAG: {}
+        CREATIONDATE: 2025-03-06T00:00:00
+        TAX: {}
+        TAXEXEMPTNO: {}
+        TAXEXPDATE: {}
+        BRN: {}
+        BRN2: {}
+        GSTNO: {}
+        SALESTAXNO: {}
+        SERVICETAXNO: {}
+        TIN: {}
+        IDType: 0
+        IDNo: {}
+        TourismNo: {}
+        SIC: {}
+        SUBMISSIONTYPE: 0
+        IRBM_CLASSIFICATION: {}
+        PeppolID: {}
+        BusinessUnit: {}
+        TAXAREA: {}
+        ATTACHMENTS: {}
+        REMARK: {}
+        NOTE: {}
+        STATUS: A
+        LASTMODIFIED: 1741253392
+        DIRTY: true
+        sdsBranch:
+        - 14
+        - 300-T0002
+        - B
+        - TestBranch
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - ''
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsCreditControl:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsBankAcc:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsTariff:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+    BizObjectQueryResponseExample:
+      value:
+      - CODE: 300-A0001
+        CONTROLACCOUNT: 300-000
+        COMPANYNAME: A HOME FURNISHING & SERVICE
+        COMPANYNAME2: ""
+        COMPANYCATEGORY: abc
+        AREA: KL
+        AGENT: Yuki
+        BIZNATURE: ""
+        CREDITTERM: 30 Days
+        CREDITLIMIT: 30000
+        OVERDUELIMIT: 0
+        STATEMENTTYPE: O
+        CURRENCYCODE: abc
+        OUTSTANDING: 1455
+        ALLOWEXCEEDCREDITLIMIT: T
+        ADDPDCTOCRLIMIT: T
+        AGINGON: I
+        STATUS: A
+        PRICETAG: ""
+        CREATIONDATE: 2023-02-25T00:00:00
+        TAX: ""
+        TAXEXEMPTNO: ""
+        TAXEXPDATE: ""
+        BRN: ""
+        BRN2: ""
+        GSTNO: ""
+        SALESTAXNO: ""
+        SERVICETAXNO: ""
+        TIN: ""
+        IDTYPE: 0
+        IDNO: ""
+        TOURISMNO: ""
+        SIC: ""
+        SUBMISSIONTYPE: 0
+        IRBM_CLASSIFICATION: ""
+        PEPPOLID: ""
+        BUSINESSUNIT: ""
+        TAXAREA: ""
+        ATTACHMENTS: ""
+        REMARK: ""
+        NOTE: ""
+        LASTMODIFIED: 1723112184
+    BizObjectTransferResponseExample:
+      value:
+        DOCKEY: 68
+        DOCNO: IV-00018
+        DOCNOEX: {}
+        DOCDATE: 2025-03-06T00:00:00
+        POSTDATE: 2025-03-06T00:00:00
+        TAXDATE: 2025-03-06T00:00:00
+        EIVDATETIME: {}
+        CODE: 300-W0002
+        COMPANYNAME: WENDY DESIGN GROUP
+        ADDRESS_1: No 45, Road Hibiscus 33,
+        ADDRESS2: Setia Eco, 40170, Shah Alam, Selangor.
+        ADDRESS3: {}
+        ADDRESS4: {}
+        POSTCODE: {}
+        CITY: {}
+        STATE: {}
+        COUNTRY: 
+        PHONE_1: 03-3485 8657
+        MOBILE: {}
+        FAX_1: {}
+        ATTENTION: Miss Wendy Ng
+        AREA: Selangor
+        AGENT: Ashley
+        PROJECT: ----
+        TERMS: 30 Days
+        CURRENCYCODE: ----
+        CURRENCYRATE: 1
+        SHIPPER: ----
+        DESCRIPTION: 
+        CANCELLED: F
+        DOCAMT: 1300
+        LOCALDOCAMT: 1300
+        D_AMOUNT: 0
+        VALIDITY: {}
+        DELIVERYTERM: {}
+        CC: {}
+        DOCREF_1: {}
+        DOCREF2: {}
+        DOCREF3: {}
+        DOCREF4: {}
+        BRANCHNAME: BILLING
+        DADDRESS_1: No 45, Road Hibiscus 33,
+        DADDRESS2: Setia Eco, 40170, Shah Alam, Selangor.
+        DADDRESS3: {}
+        DADDRESS4: {}
+        DPOSTCODE: {}
+        DCITY: {}
+        DSTATE: {}
+        DCOUNTRY: 
+        DATTENTION: Miss Wendy Ng
+        DPHONE_1: 03-3485 8657
+        DMOBILE: {}
+        DFAX_1: {}
+        TAXEXEMPTNO: {}
+        SALESTAXNO: {}
+        SERVICETAXNO: {}
+        TIN: {}
+        IDTYPE: 0
+        IDNO: {}
+        TOURISMNO: {}
+        SIC: {}
+        INCOTERMS: {}
+        SUBMISSIONTYPE: 0
+        IRBM_STATUS: 0
+        IRBM_INTERNALID: {}
+        IRBM_UUID: {}
+        IRBM_LONGID: {}
+        ATTACHMENTS: {}
+        NOTE: {}
+        UPDATECOUNT: {}
+        TRANSFERABLE: T
+        PRINTCOUNT: 0
+        sdsDocDetail:
+        - 70
+        - 68
+        - 2000
+        - ''
+        - ''
+        - LD/White
+        - ----
+        - ''
+        - ----
+        - Intelligent tracks lightcycle desk light (White)
+        - ''
+        - {}
+        - ''
+        - 1
+        - UNIT
+        - 1
+        - 1
+        - 0
+        - 650
+        - 2024-07-01T00:00:00
+        - ''
+        - ''
+        - ''
+        - ''
+        - 022
+        - ''
+        - 0
+        - 0
+        - 0
+        - 650
+        - 650
+        - 650
+        - 650
+        - 500-300
+        - T
+        - SO
+        - 18
+        - 20
+        - T
+        - ''
+        - ''
+        - {}
+        - - {}
+        - 0
+        - T
+        CHANGED: T
+        DocNoSetKey: 13
+        NextDocNo: {}
+    CustomerInfoResponseExample:
+      value:
+      - CODE: 300-A0001
+        CONTROLACCOUNT: 300-000
+        COMPANYNAME: A HOME FURNISHING & SERVICE
+        COMPANYNAME2: ""
+        COMPANYCATEGORY: ----
+        AREA: KL
+        AGENT: Yuki
+        BIZNATURE: ""
+        CREDITTERM: 30 Days
+        CREDITLIMIT: 30000
+        OVERDUELIMIT: 0
+        STATEMENTTYPE: O
+        CURRENCYCODE: ----
+        OUTSTANDING: 1455
+        ALLOWEXCEEDCREDITLIMIT: T
+        ADDPDCTOCRLIMIT: T
+        AGINGON: I
+        STATUS: A
+        PRICETAG: ""
+        CREATIONDATE: 2023-02-25T00:00:00
+        TAX: ""
+        TAXEXEMPTNO: ""
+        TAXEXPDATE: ""
+        BRN: ""
+        BRN2: ""
+        GSTNO: ""
+        SALESTAXNO: ""
+        SERVICETAXNO: ""
+        TIN: ""
+        IDTYPE: 0
+        IDNO: ""
+        TOURISMNO: ""
+        SIC: ""
+        SUBMISSIONTYPE: 0
+        IRBM_CLASSIFICATION: ""
+        PEPPOLID: ""
+        BUSINESSUNIT: ""
+        TAXAREA: ""
+        ATTACHMENTS: ""
+        REMARK: ""
+        NOTE: ""
+        LASTMODIFIED: 1723112184
+        cdsBranch:
+        - DTLKEY: 1
+          CODE_1: 300-A0001
+          BRANCHTYPE: B
+          BRANCHNAME: BILLING
+          ADDRESS_1: Lot 98, Jalan Mentari Kuah,
+          ADDRESS2: 50480 KL
+          ADDRESS3: ""
+          ADDRESS4: ""
+          POSTCODE: ""
+          CITY: ""
+          STATE: ""
+          COUNTRY: ""
+          GEOLAT: ""
+          GEOLONG: ""
+          ATTENTION: Mr. Delta
+          PHONE_1: 04-976 5235
+          PHONE2: ""
+          MOBILE: ""
+          FAX_1: ""
+          FAX2: ""
+          EMAIL: delta@ahome.com
+    CustomerInvoiceInfoResponseExample:
+      value:
+      - DOCKEY: 1
+        DOCNO: IV-00001
+        DOCNOEX: ""
+        CODE: 300-T0001
+        JOURNAL: SALES
+        DOCDATE: 2024-06-11T00:00:00
+        POSTDATE: 2024-06-11T00:00:00
+        TAXDATE: 2024-06-11T00:00:00
+        TERMS: 60 Days
+        DUEDATE: 2024-08-10T00:00:00
+        DESCRIPTION: Sales
+        AREA: Selangor
+        AGENT: Yuki
+        PROJECT: ----
+        CURRENCYCODE: ----
+        CURRENCYRATE: 1
+        DOCAMT: 800
+        LOCALDOCAMT: 800
+        PAYMENTAMT: 800
+        FROMDOCTYPE: IV
+        TAXEXEMPTNO: ""
+        GLTRANSID: 1
+        CANCELLED: F
+        UPDATECOUNT: ""
+        ATTACHMENTS: ""
+        NOTE: ""
+        cdsDocDetail:
+        - DTLKEY: 3
+          DOCKEY_1: 1
+          SEQ: 1000
+          PROJECT_1: ----
+          ACCOUNT: 500-500
+          DESCRIPTION_1: Ultra Soft Fluffy Rug Rectangle Carpet (Blue)
+          TAX: ""
+          TARIFF: ""
+          TAXRATE: ""
+          TAXAMT: 0
+          LOCALTAXAMT: 0
+          TAXINCLUSIVE: 0
+          AMOUNT: 400
+          LOCALAMOUNT: 400
+          TAXABLEAMT: 400
+          FROMDTLKEY: 3
+        - DTLKEY: 4
+          DOCKEY_1: 1
+          SEQ: 2000
+          PROJECT_1: ----
+          ACCOUNT: 500-500
+          DESCRIPTION_1: Ultra Soft Fluffy Rug Rectangle Carpet (Green)
+          TAX: ""
+          TARIFF: ""
+          TAXRATE: ""
+          TAXAMT: 0
+          LOCALTAXAMT: 0
+          TAXINCLUSIVE: 0
+          AMOUNT: 400
+          LOCALAMOUNT: 400
+          TAXABLEAMT: 400
+          FROMDTLKEY: 4
+    CustomerPaymentInfoResponseExample:
+      value:
+      - DOCKEY: 1
+        DOCNO: CS-00001
+        CODE: 300-C0002
+        DOCDATE: 2024-06-15T00:00:00
+        POSTDATE: 2024-06-15T00:00:00
+        TAXDATE: 2024-06-15T00:00:00
+        DESCRIPTION: Payment For Account
+        AREA: ----
+        AGENT: ----
+        PAYMENTMETHOD: 320-000
+        CHEQUENUMBER: ""
+        JOURNAL: CASH
+        PROJECT: ----
+        PAYMENTPROJECT: ----
+        CURRENCYCODE: ----
+        CURRENCYRATE: 1
+        BANKACC: ""
+        BANKCHARGE: 0
+        BANKCHARGEACCOUNT: ""
+        DOCAMT: 240
+        LOCALDOCAMT: 240
+        UNAPPLIEDAMT: 0
+        DOCREF_1: ""
+        DOCREF2: ""
+        FROMDOCTYPE: CS
+        FROMDOCKEY: ""
+        GLTRANSID: 19
+        CANCELLED: F
+        NONREFUNDABLE: 0
+        BOUNCEDDATE: ""
+        UPDATECOUNT: 1
+        ATTACHMENTS: ""
+        NOTE: ""
+        BANKTRANSFERTYPE: 0
+        BANKREFNO: ""
+        BANKSTATUS: ""
+        BANKSTATUSDESC: ""
+        cdsKnockOff:
+        - DOCKEY_1: 1
+          FROMDOCTYPE_1: PM
+          FROMDOCKEY_1: 1
+          TODOCTYPE: IV
+          TODOCKEY: 66
+          KOAMT: 240
+          ACTUALLOCALKOAMT: 240
+          LOCALKOAMT: 240
+          KOTAXDATE: 2024-06-15T00:00:00
+          GAINLOSS: 0
+          GAINLOSSPOSTDATE: ""
+        - DOCKEY_1: 12
+          FROMDOCTYPE_1: CF
+          FROMDOCKEY_1: 1
+          TODOCTYPE: CN
+          TODOCKEY: 1
+          KOAMT: 40
+          ACTUALLOCALKOAMT: 40
+          LOCALKOAMT: 40
+          KOTAXDATE: ""
+          GAINLOSS: 0
+          GAINLOSSPOSTDATE: ""
+    SalesInvoiceInfoResponseExample:
+      value:
+      - DOCKEY: 1
+        DOCNO: IV-00001
+        DOCNOEX: ""
+        DOCDATE: 2024-06-11T00:00:00
+        POSTDATE: 2024-06-11T00:00:00
+        TAXDATE: 2024-06-11T00:00:00
+        EIVDATETIME: ""
+        CODE: 300-T0001
+        COMPANYNAME: THAI TEA TRADING
+        ADDRESS_1: No 45, Jalan Batu Tiga Klang,
+        ADDRESS2: 42000, Pelabuhan Klang, Selangor.
+        ADDRESS3: ""
+        ADDRESS4: ""
+        POSTCODE: ""
+        CITY: ""
+        STATE: ""
+        COUNTRY: ""
+        PHONE_1: 03-3816 1027
+        MOBILE: ""
+        FAX_1: ""
+        ATTENTION: Mr. Leonard
+        AREA: Selangor
+        AGENT: Yuki
+        PROJECT: ----
+        TERMS: 60 Days
+        CURRENCYCODE: ----
+        CURRENCYRATE: 1
+        SHIPPER: ----
+        DESCRIPTION: Sales
+        CANCELLED: F
+        DOCAMT: 800
+        LOCALDOCAMT: 800
+        D_AMOUNT: 0
+        VALIDITY: ""
+        DELIVERYTERM: ""
+        CC: ""
+        DOCREF_1: ""
+        DOCREF2: ""
+        DOCREF3: ""
+        DOCREF4: ""
+        BRANCHNAME: BILLING
+        DADDRESS_1: No 45, Jalan Batu Tiga Klang,
+        DADDRESS2: 42000, Pelabuhan Klang, Selangor.
+        DADDRESS3: ""
+        DADDRESS4: ""
+        DPOSTCODE: ""
+        DCITY: ""
+        DSTATE: ""
+        DCOUNTRY: ""
+        DATTENTION: Mr. Leonard
+        DPHONE_1: 03-3816 1027
+        DMOBILE: ""
+        DFAX_1: ""
+        TAXEXEMPTNO: ""
+        SALESTAXNO: ""
+        SERVICETAXNO: ""
+        TIN: ""
+        IDTYPE: 0
+        IDNO: ""
+        TOURISMNO: ""
+        SIC: ""
+        INCOTERMS: ""
+        SUBMISSIONTYPE: 0
+        IRBM_STATUS: 0
+        IRBM_INTERNALID: ""
+        IRBM_UUID: ""
+        IRBM_LONGID: ""
+        ATTACHMENTS: ""
+        NOTE: ""
+        TRANSFERABLE: T
+        UPDATECOUNT: ""
+        PRINTCOUNT: 0
+        cdsDocDetail:
+        - DTLKEY: 3
+          DOCKEY_1: 1
+          SEQ: 1000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: RFC/Blue
+          LOCATION: ----
+          BATCH: ""
+          PROJECT_1: ----
+          DESCRIPTION_1: Ultra Soft Fluffy Rug Rectangle Carpet (Blue)
+          DESCRIPTION2: ""
+          DESCRIPTION3: ""
+          PERMITNO: ""
+          QTY: 10
+          UOM: UNIT
+          RATE: 1
+          SQTY: 10
+          SUOMQTY: 0
+          UNITPRICE: 40
+          DELIVERYDATE: 2024-06-11T00:00:00
+          DISC: ""
+          TAX: ""
+          TARIFF: ""
+          TAXEXEMPTIONREASON: ""
+          IRBM_CLASSIFICATION: 022
+          TAXRATE: ""
+          TAXAMT: 0
+          LOCALTAXAMT: 0
+          TAXINCLUSIVE: 0
+          AMOUNT: 400
+          LOCALAMOUNT: 400
+          TAXABLEAMT: 400
+          ACCOUNT: 500-500
+          PRINTABLE: T
+          FROMDOCTYPE: ""
+          FROMDOCKEY: ""
+          FROMDTLKEY: ""
+          TRANSFERABLE_1: T
+          REMARK_1: ""
+          REMARK2: ""
+          INITIALPURCHASECOST: 0
+        - DTLKEY: 4
+          DOCKEY_1: 1
+          SEQ: 2000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: RFC/Green
+          LOCATION: ----
+          BATCH: ""
+          PROJECT_1: ----
+          DESCRIPTION_1: Ultra Soft Fluffy Rug Rectangle Carpet (Green)
+          DESCRIPTION2: ""
+          DESCRIPTION3: ""
+          PERMITNO: ""
+          QTY: 10
+          UOM: UNIT
+          RATE: 1
+          SQTY: 10
+          SUOMQTY: 0
+          UNITPRICE: 40
+          DELIVERYDATE: 2024-06-11T00:00:00
+          DISC: ""
+          TAX: ""
+          TARIFF: ""
+          TAXEXEMPTIONREASON: ""
+          IRBM_CLASSIFICATION: 022
+          TAXRATE: ""
+          TAXAMT: 0
+          LOCALTAXAMT: 0
+          TAXINCLUSIVE: 0
+          AMOUNT: 400
+          LOCALAMOUNT: 400
+          TAXABLEAMT: 400
+          ACCOUNT: 500-500
+          PRINTABLE: T
+          FROMDOCTYPE: ""
+          FROMDOCKEY: ""
+          FROMDTLKEY: ""
+          TRANSFERABLE_1: T
+          REMARK_1: ""
+          REMARK2: ""
+          INITIALPURCHASECOST: 0
+    SalesOrderInfoResponseExample:
+      value:
+      - DOCKEY: 1
+        DOCNO: SO-00001
+        DOCNOEX: ""
+        DOCDATE: 2024-06-28T00:00:00
+        POSTDATE: 2024-06-28T00:00:00
+        TAXDATE: 2024-06-28T00:00:00
+        CODE: 300-A0001
+        COMPANYNAME: A HOME FURNISHING & SERVICE
+        ADDRESS_1: Lot 98, Jalan Mentari Kuah,
+        ADDRESS2: 50480 KL
+        ADDRESS3: ""
+        ADDRESS4: ""
+        POSTCODE: ""
+        CITY: ""
+        STATE: ""
+        COUNTRY: ""
+        PHONE_1: 04-976 5235
+        MOBILE: ""
+        FAX_1: ""
+        ATTENTION: Mr. Delta
+        AREA: KL
+        AGENT: Yuki
+        PROJECT: ----
+        TERMS: 30 Days
+        CURRENCYCODE: ----
+        CURRENCYRATE: 1
+        SHIPPER: ----
+        DESCRIPTION: Sales Order
+        CANCELLED: F
+        DOCAMT: 1370
+        LOCALDOCAMT: 1370
+        D_DOCNO: ""
+        D_PAYMENTMETHOD: ""
+        D_CHEQUENUMBER: ""
+        D_PAYMENTPROJECT: ""
+        D_BANKCHARGE: 0
+        D_BANKCHARGEACCOUNT: ""
+        D_AMOUNT: 0
+        VALIDITY: ""
+        DELIVERYTERM: ""
+        CC: ""
+        DOCREF_1: ""
+        DOCREF2: ""
+        DOCREF3: ""
+        DOCREF4: ""
+        BRANCHNAME: BILLING
+        DADDRESS_1: Lot 98, Jalan Mentari Kuah,
+        DADDRESS2: 50480 KL
+        DADDRESS3: ""
+        DADDRESS4: ""
+        DPOSTCODE: ""
+        DCITY: ""
+        DSTATE: ""
+        DCOUNTRY: ""
+        DATTENTION: Mr. Delta
+        DPHONE_1: 04-976 5235
+        DMOBILE: ""
+        DFAX_1: ""
+        TAXEXEMPTNO: ""
+        SALESTAXNO: ""
+        SERVICETAXNO: ""
+        TIN: ""
+        IDTYPE: 0
+        IDNO: ""
+        TOURISMNO: ""
+        SIC: ""
+        INCOTERMS: ""
+        SUBMISSIONTYPE: 0
+        ATTACHMENTS: ""
+        NOTE: ""
+        TRANSFERABLE: T
+        UPDATECOUNT: ""
+        PRINTCOUNT: 0
+        cdsDocDetail:
+        - DTLKEY: 3
+          DOCKEY_1: 1
+          SEQ: 1000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: CCE/Black-Chair
+          LOCATION: ----
+          BATCH: ""
+          PROJECT_1: ----
+          DESCRIPTION_1: Creative Curvy Modern Style Eames Chair (Black)
+          DESCRIPTION2: ""
+          DESCRIPTION3: ""
+          PERMITNO: ""
+          QTY: 2
+          UOM: UNIT
+          RATE: 1
+          SQTY: 2
+          SUOMQTY: 0
+          OFFSETQTY: 0
+          UNITPRICE: 85
+          DELIVERYDATE: 2024-06-28T00:00:00
+          DISC: ""
+          TAX: ""
+          TARIFF: ""
+          TAXEXEMPTIONREASON: ""
+          IRBM_CLASSIFICATION: 022
+          TAXRATE: ""
+          TAXAMT: 0
+          LOCALTAXAMT: 0
+          TAXINCLUSIVE: 0
+          AMOUNT: 170
+          LOCALAMOUNT: 170
+          PRINTABLE: T
+          FROMDOCTYPE: QT
+          FROMDOCKEY: 1
+          FROMDTLKEY: 3
+          TRANSFERABLE_1: T
+          REMARK_1: ""
+          REMARK2: ""
+          INITIALPURCHASECOST: 0
+        - DTLKEY: 4
+          DOCKEY_1: 1
+          SEQ: 2000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: PF2S-Sofa
+          LOCATION: ----
+          BATCH: ""
+          PROJECT_1: ----
+          DESCRIPTION_1: Premium Fabric 2 Seater Sofa
+          DESCRIPTION2: ""
+          DESCRIPTION3: ""
+          PERMITNO: ""
+          QTY: 1
+          UOM: UNIT
+          RATE: 1
+          SQTY: 1
+          SUOMQTY: 0
+          OFFSETQTY: 0
+          UNITPRICE: 1200
+          DELIVERYDATE: 2024-06-28T00:00:00
+          DISC: ""
+          TAX: ""
+          TARIFF: ""
+          TAXEXEMPTIONREASON: ""
+          IRBM_CLASSIFICATION: 022
+          TAXRATE: ""
+          TAXAMT: 0
+          LOCALTAXAMT: 0
+          TAXINCLUSIVE: 0
+          AMOUNT: 1200
+          LOCALAMOUNT: 1200
+          PRINTABLE: T
+          FROMDOCTYPE: QT
+          FROMDOCKEY: 1
+          FROMDTLKEY: 4
+          TRANSFERABLE_1: T
+          REMARK_1: ""
+          REMARK2: ""
+          INITIALPURCHASECOST: 0
+    StockAdjustmentInfoResponseExample:
+      value:
+      - DOCKEY: 1
+        DOCNO: AJ-00001
+        DOCDATE: 2024-06-30T00:00:00
+        POSTDATE: 2024-06-30T00:00:00
+        DESCRIPTION: Stock Adjustment - Bedding Accessories
+        WRITEOFF: F
+        CANCELLED: F
+        DOCAMT: -1170
+        ATTACHMENTS: ""
+        AUTHBY: ""
+        REASON: ""
+        REMARK: ""
+        NOTE: ""
+        UPDATECOUNT: ""
+        PRINTCOUNT: 0
+        cdsDocDetail:
+        - DTLKEY: 3
+          DOCKEY_1: 1
+          SEQ: 1000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: MF-Bolster
+          LOCATION: ----
+          BATCH: ""
+          PROJECT: ----
+          DESCRIPTION_1: Microfiber Soft Bolster with 100% cotton fabric
+          DESCRIPTION2: ""
+          DESCRIPTION3: ""
+          BOOKQTY: 30
+          PHYSICALQTY: 29
+          QTY: -1
+          SUOMQTY: 0
+          UOM: UNIT
+          RATE: 1
+          SQTY: -1
+          UNITCOST: 129
+          AMOUNT: -129
+          PRINTABLE: T
+          REMARK_1: ""
+          REMARK2: ""
+        - DTLKEY: 4
+          DOCKEY_1: 1
+          SEQ: 2000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: PMF-Pillow
+          LOCATION: ----
+          BATCH: ""
+          PROJECT: ----
+          DESCRIPTION_1: Premium Memory Foam Pillow
+          DESCRIPTION2: ""
+          DESCRIPTION3: ""
+          BOOKQTY: 20
+          PHYSICALQTY: 21
+          QTY: 1
+          SUOMQTY: 0
+          UOM: UNIT
+          RATE: 1
+          SQTY: 1
+          UNITCOST: 59
+          AMOUNT: 59
+          PRINTABLE: T
+          REMARK_1: ""
+          REMARK2: ""
+        - DTLKEY: 5
+          DOCKEY_1: 1
+          SEQ: 3000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: SPM-Queen
+          LOCATION: ----
+          BATCH: ""
+          PROJECT: ----
+          DESCRIPTION_1: Queen Size 12inch Signature Double Posture Spring Mattress
+          DESCRIPTION2: ""
+          DESCRIPTION3: ""
+          BOOKQTY: 30
+          PHYSICALQTY: 29
+          QTY: -1
+          SUOMQTY: 0
+          UOM: UNIT
+          RATE: 1
+          SQTY: -1
+          UNITCOST: 1100
+          AMOUNT: -1100
+          PRINTABLE: T
+          REMARK_1: ""
+          REMARK2: ""
+    StockItemInfoResponseExample:
+      value:
+      - DOCKEY: 1
+        CODE: SEMI BOM
+        DESCRIPTION: SEMI BOM
+        DESCRIPTION2: ""
+        DESCRIPTION3: ""
+        STOCKGROUP: OTHERS
+        STOCKCONTROL: T
+        COSTINGMETHOD: 1
+        SERIALNUMBER: F
+        REMARK_1: ""
+        REMARK2: ""
+        MINQTY: 0
+        MAXQTY: 0
+        REORDERLEVEL: 0
+        REORDERQTY: 1
+        SHELF: ""
+        SUOM: ""
+        ITEMTYPE: B
+        LEADTIME: 0
+        BOM_LEADTIME: 0
+        BOM_ASMCOST: 0
+        SLTAX: ""
+        PHTAX: ""
+        TARIFF: ""
+        IRBM_CLASSIFICATION: 022
+        STOCKMATRIX: ""
+        DEFUOM_ST: ""
+        DEFUOM_SL: ""
+        DEFUOM_PH: ""
+        SCRIPTCODE: ""
+        ISACTIVE: T
+        BALSQTY: -5
+        BALSUOMQTY: 0
+        CREATIONDATE: 2024-08-08T00:00:00
+        PICTURE: ""
+        PICTURECLASS: ""
+        ATTACHMENTS: ""
+        NOTE: ""
+        LASTMODIFIED: 1723112180
+        cdsUOM:
+        - CODE_1: SEMI BOM
+          UOM: UNIT
+          RATE: 1
+          REFCOST: 23
+          REFPRICE: 0
+          MINCOST: ""
+          MAXCOST: ""
+          MINPRICE: ""
+          MAXPRICE: ""
+          ISBASE: 1
+    StockItemTemplateInfoResponseExample:
+      value:
+      - CODE: NewStockItem
+        DESCRIPTION: ""
+        DESCRIPTION2: ""
+        DESCRIPTION3: ""
+        REFPRICE: ""
+        ISACTIVE: T
+        ATTACHMENTS: ""
+        LASTMODIFIED: 1741233335
+        cdsItemTplDtl:
+        - DTLKEY: 1
+          CODE_1: NewStockItem
+          SEQ: 1000
+          STYLEID: ""
+          NUMBER: ""
+          ITEMCODE: BOM-01/Black
+          LOCATION: ----
+          PROJECT: ----
+          DESCRIPTION_1: Premium PU Leather Ultimate Gaming Chair (Black)
+          DESCRIPTION2_1: ""
+          DESCRIPTION3_1: ""
+          QTY: 1
+          SUOMQTY: 0
+          UOM: UNIT
+          UNITAMOUNT: 700
+          DISC: ""
+          AMOUNT: 700
+          PRINTABLE: T
+          REMARK_1: ""
+          REMARK2: ""
+    BizObjectUpdateResponseExample:
+      value:
+        DOCKEY: 10
+        CODE: ISCT
+        DESCRIPTION: Test Description
+        DESCRIPTION2: {}
+        DESCRIPTION3: {}
+        STOCKGROUP: FURNITURE
+        STOCKCONTROL: T
+        COSTINGMETHOD: 1
+        SERIALNUMBER: F
+        SHELF: {}
+        MINQTY: 0
+        MAXQTY: 0
+        SUOM: {}
+        REORDERLEVEL: 0
+        REORDERQTY: 1
+        SLTAX: {}
+        PHTAX: {}
+        TARIFF: {}
+        IRBM_Classification: 022
+        STOCKMATRIX: {}
+        DEFUOM_ST: {}
+        DEFUOM_SL: {}
+        DEFUOM_PH: {}
+        SCRIPTCODE: {}
+        ISACTIVE: T
+        CREATIONDATE: 2024-08-08T00:00:00
+        PICTURE: {}
+        PICTURECLASS: {}
+        ATTACHMENTS: {}
+        NOTE: {}
+        UOM: UNIT
+        REFCOST: 220
+        REFPRICE: 6868
+        ITEMTYPE: "-"
+        LEADTIME: 0
+        BOM_LEADTIME: 0
+        BOM_ASMCOST: 0
+        BALSQTY: 10
+        BALSUOMQTY: 0
+        REMARK_1: {}
+        REMARK2: {}
+        BARCODE: {}
+        LASTMODIFIED: 1741254748
+        DIRTY: true
+        sdsUOM:
+        - ISCT
+        - UNIT
+        - 1
+        - 220
+        - 6868
+        - {}
+        - {}
+        - {}
+        - {}
+        - 1
+        sdsOpeningBalance:
+        - 4
+        - ISCT
+        - ----
+        - ''
+        - ----
+        - 1000
+        - 10
+        - 0
+        - 220
+        - 2200
+        - 2200
+        sdsCustomerPrice:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsSupplierPrice:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsCategory:
+        - {}
+        - {}
+        sdsBOM:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsAltStockItem:
+        - {}
+        - {}
+        - {}
+        sdsCustomerItem:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsSupplierItem:
+        - {}
+        - {}
+        - {}
+        - {}
+        - {}
+        sdsBarcode:
+        - {}
+        - {}
+        - {}
+        - {}

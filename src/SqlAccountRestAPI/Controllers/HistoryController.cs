@@ -7,7 +7,7 @@ using SqlAccountRestAPI.Core;
 using SqlAccountRestAPI.Helpers;
 
 namespace SqlAccountRestAPI.Controllers;
-[Route("api/[controller]")]
+[Route("api/history")]
 [ApiController]
 public class HistoryController(ILogger<HistoryController> logger) : ControllerBase
 {

@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <PreserveCompilationContext>false</PreserveCompilationContext> <!-- Chỉ giữ lại những gì cần thiết -->
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +31,8 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.config" CopyToOutputDirectory="PreserveNewest" />

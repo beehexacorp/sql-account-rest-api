@@ -18,12 +18,11 @@ public class SqlAccountBizObjectHelper
     }
     public IEnumerable<IDictionary<string, object>> Query(
         string sql,
-        IDictionary<string, object?> @params,
         int offset = 0,
         int limit = 100)
     {
         // TODO: (later) add cursor-based query
-        var results = _microORM.Query(sql, @params, offset, limit);
+        var results = _microORM.Query(sql, offset, limit);
         return results;
     }
 
@@ -136,6 +135,11 @@ public class SqlAccountBizObjectHelper
         cdsData = cdsData ?? new List<IDictionary<string, object?>>();
         foreach (var dataItem in cdsData)
         {
+
+            if (datasetName == "cdsKnockOff") 
+                if (!lCdsDataSet.Locate("DocType;DocNo", new object[2] { dataItem["DOCTYPE"]!.ToString()!, dataItem["DOCNO"]!.ToString()!}, false, false))
+                    throw new Exception("KnockOff does not exist.");
+                
             if (defaultSubDataSetExistFlag)
             {
                 lCdsDataSet.Edit();
@@ -198,7 +202,6 @@ public class SqlAccountBizObjectHelper
             {
                 var toTransferDetails = _microORM.Query(
                     "SELECT * FROM " + fromEntityType + "DTL WHERE DOCKEY=" + docKey,
-                    new Dictionary<string, object?>(),
                     offset,
                     limit);
                 if (toTransferDetails == null || !toTransferDetails.Any())
