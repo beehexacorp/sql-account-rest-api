@@ -160,6 +160,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
+app.UseMiddleware<CustomApiMiddleware>();
 
 app.UseExceptionHandler(a => a.Run(async context =>
         {
