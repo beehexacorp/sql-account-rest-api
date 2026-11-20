@@ -18,7 +18,7 @@ const serviceEndpointHandler = useServiceEndpoint()
  * Fetch BizObjects.
  */
 export const fetchBizObject = async (): Promise<BizObjectEntry[]> => {
-  const apiUrl = serviceEndpointHandler.normalize(`api/app/objects`);
+  const apiUrl = serviceEndpointHandler.normalize(`api/app/biz-objects`);
   const response = await fetch(apiUrl, {
     method: "GET",
     headers: {
@@ -30,7 +30,9 @@ export const fetchBizObject = async (): Promise<BizObjectEntry[]> => {
     throw new Error(`Error fetching BizObject list: ${response.statusText}`);
   }
 
-  const data: BizObjectEntry[] = await response.json();
+  // The API returns { bizObjects: [...] }; older builds returned the array itself.
+  const body = await response.json();
+  const data: BizObjectEntry[] = Array.isArray(body) ? body : (body?.bizObjects ?? []);
   // Handle duplicate names
   const uniqueData = Array.from(
     new Map(data.map(item => [item.name, item])).values()
@@ -39,7 +41,7 @@ export const fetchBizObject = async (): Promise<BizObjectEntry[]> => {
 };
 
 export const fetchBizObjectDetail = async (name: string): Promise<BizObjectDetail> => {
-  const apiUrl = serviceEndpointHandler.normalize(`api/app/objects/${name}`);
+  const apiUrl = serviceEndpointHandler.normalize(`api/app/biz-objects/${name}`);
   const response = await fetch(apiUrl, {
     method: "GET",
     headers: {
