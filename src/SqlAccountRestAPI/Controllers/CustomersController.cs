@@ -55,27 +55,39 @@ public class CustomerController : ControllerBase
         }
     }
 
-    // [HttpPost("payment")]
-    // public IActionResult Payment([FromBody] AddCustomerPaymentRequest request)
-    // {
-    //     try
-    //     {
-    //         var sqlAccountVersion = _sqlAccountVersionHelper.GetRunningVersion();
-    //         var acceptedParams = _sqlAccountVersionHelper.GetConfig(sqlAccountVersion, "CUSTOMER", "AddPayment");
-    //         var result = SystemHelper.InvokeMethod(_customerHelper, "AddPayment", request, acceptedParams);
-    //         return Ok(result);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         var errorResponse = new
-    //         {
-    //             error = ex.ToString(),
-    //             code = 400
-    //         };
-    //         return BadRequest(errorResponse);
-    //     }
-    // }
-    
+    /// <summary>
+    /// Adds a customer payment
+    /// </summary>
+    /// <remarks>
+    /// Creates a customer payment (AR_PM) for the customer of the customer invoice (AR_IV) with the given
+    /// document number, and knocks it off against that invoice.
+    /// </remarks>
+    /// <param name="request">The payment to add.</param>
+    /// <response code="200">Returns the created customer payment</response>
+    /// <response code="400">General error</response>
+    [Produces("application/json")]
+    [HttpPost("payment")]
+    public IActionResult Payment([FromBody] AddCustomerPaymentRequest request)
+    {
+        try
+        {
+            var sqlAccountVersion = _sqlAccountVersionHelper.GetRunningVersion();
+            var acceptedParams = _sqlAccountVersionHelper.GetConfig(sqlAccountVersion, "CUSTOMER", "AddPayment");
+            var result = SystemHelper.InvokeMethod(_customerHelper, "AddPayment", request, acceptedParams);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            var errorResponse = new
+            {
+                error = ex.ToString(),
+                code = 400
+            };
+            return BadRequest(errorResponse);
+        }
+    }
+
+
     /// <summary>
     /// Retrieves customers by customer code
     /// </summary>
